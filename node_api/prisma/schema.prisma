@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Event {
+  id           Int        @id @default(autoincrement())
+  rfidOrderId  Int
+  timestamp    DateTime
+  eventType    Int
+  RfidOrder    RfidOrder  @relation(fields: [rfidOrderId], references: [id])
+}
+
+model Rfid {
+  id          Int       @id @default(autoincrement())
+  enCoursId   Int
+  workshopId  Int
+  reference   Int
+  EnCours     EnCours   @relation(fields: [enCoursId], references: [id])
+  Workshop    Workshop  @relation(fields: [workshopId], references: [id])
+  RfidOrder   RfidOrder[]
+}
+
+model EnCours {
+  id        Int       @id @default(autoincrement())
+  antennaId Int        @unique
+  Antenna   Antenna    @relation(fields: [antennaId], references: [id])
+  Workshop  Workshop[]
+  Rfid      Rfid[]
+}
+
+model Order {
+  id        Int        @id @default(autoincrement())
+  status    Int
+  startDate DateTime
+  endDate   DateTime
+  Alert     Alert[]
+  RfidOrder RfidOrder[]
+  Support   Support[]
+}
+
+model Artisan {
+  id      Int       @id @default(autoincrement())
+  name    String
+  Support Support[]
+}
+
+model Alert {
+  id        Int       @id @default(autoincrement())
+  orderId   Int
+  type      Int
+  startDate DateTime
+  endDate   DateTime
+  Order     Order     @relation(fields: [orderId], references: [id])
+}
+
+model RfidOrder {
+  id        Int       @id @default(autoincrement())
+  rfid      Int
+  orderId   Int
+  status    Int
+  Rfid      Rfid      @relation(fields: [rfid], references: [id])
+  Order     Order     @relation(fields: [orderId], references: [id])
+  Event     Event[]
+}
+
+model Workshop {
+  id        Int       @id @default(autoincrement())
+  name      String
+  enCoursId Int
+  EnCours   EnCours   @relation(fields: [enCoursId], references: [id])
+  Rfid      Rfid[]
+  Support   Support[]
+}
+
+model Support {
+  id         Int       @id @default(autoincrement())
+  orderId    Int
+  artisanId  Int
+  workshopId Int
+  type       Int
+  startDate  DateTime
+  endDate    DateTime
+  Order      Order     @relation(fields: [orderId], references: [id])
+  Artisan    Artisan   @relation(fields: [artisanId], references: [id])
+  Workshop   Workshop  @relation(fields: [workshopId], references: [id])
+}
+
+model Antenna {
+  id        Int       @id @default(autoincrement())
+  reference Int        @unique
+  EnCours   EnCours[]
+}
