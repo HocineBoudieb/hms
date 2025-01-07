@@ -19,14 +19,15 @@ model Rfid {
   id          Int       @id @default(autoincrement())
   enCoursId   Int
   workshopId  Int
+  rfidOrderId Int       @unique
   reference   Int
   EnCours     EnCours   @relation(fields: [enCoursId], references: [id])
   Workshop    Workshop  @relation(fields: [workshopId], references: [id])
-  RfidOrder   RfidOrder[]
+  RfidOrder   RfidOrder? @relation(fields: [rfidOrderId], references: [id])
 }
 
 model EnCours {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   antennaId Int        @unique
   Antenna   Antenna    @relation(fields: [antennaId], references: [id])
   Workshop  Workshop[]
@@ -38,8 +39,11 @@ model Order {
   status    Int
   startDate DateTime
   endDate   DateTime
+  enCoursId Int
+  workshopId Int
+  rfidOrderId Int      @unique
+  RfidOrder RfidOrder? @relation(fields: [rfidOrderId], references: [id])
   Alert     Alert[]
-  RfidOrder RfidOrder[]
   Support   Support[]
 }
 
@@ -61,10 +65,9 @@ model Alert {
 model RfidOrder {
   id        Int       @id @default(autoincrement())
   rfid      Int
-  orderId   Int
   status    Int
-  Rfid      Rfid      @relation(fields: [rfid], references: [id])
-  Order     Order     @relation(fields: [orderId], references: [id])
+  Rfid      Rfid?
+  Order     Order?
   Event     Event[]
 }
 

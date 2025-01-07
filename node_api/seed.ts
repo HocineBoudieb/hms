@@ -1,55 +1,110 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  console.log('🌱 Seeding database...');
+
   // Create Antennas
-  const antenna1 = await prisma.antenna.create({ data: { reference: 201 } });
-  const antenna2 = await prisma.antenna.create({ data: { reference: 202 } });
-  const antenna3 = await prisma.antenna.create({ data: { reference: 203 } });
+  const antenna1 = await prisma.antenna.create({
+    data: { reference: 1001 }
+  });
+  const antenna2 = await prisma.antenna.create({
+    data: { reference: 1002 }
+  });
 
   // Create EnCours
   const enCours1 = await prisma.enCours.create({
-    data: { antennaId: antenna1.id },
+    data: {
+      antennaId: antenna1.id,
+    }
   });
+
   const enCours2 = await prisma.enCours.create({
-    data: { antennaId: antenna2.id },
-  });
-  const enCours3 = await prisma.enCours.create({
-    data: { antennaId: antenna3.id },
+    data: {
+      antennaId: antenna2.id,
+    }
   });
 
   // Create Workshops
   const workshop1 = await prisma.workshop.create({
-    data: { name: "Workshop A", enCoursId: enCours1.id },
+    data: {
+      name: 'Workshop Alpha',
+      enCoursId: enCours1.id,
+    }
   });
+
   const workshop2 = await prisma.workshop.create({
-    data: { name: "Workshop B", enCoursId: enCours2.id },
+    data: {
+      name: 'Workshop Beta',
+      enCoursId: enCours2.id,
+    }
   });
-  const workshop3 = await prisma.workshop.create({
-    data: { name: "Workshop C", enCoursId: enCours3.id },
+
+  // Create RfidOrders
+  const rfidOrder1 = await prisma.rfidOrder.create({
+    data: {
+      rfid: 5001,
+      status: 1
+    }
+  });
+
+  const rfidOrder2 = await prisma.rfidOrder.create({
+    data: {
+      rfid: 5002,
+      status: 2
+    }
+  });
+
+  // Create Rfids
+  await prisma.rfid.create({
+    data: {
+      enCoursId: enCours1.id,
+      workshopId: workshop1.id,
+      rfidOrderId: rfidOrder1.id,
+      reference: 7001,
+    }
+  });
+
+  await prisma.rfid.create({
+    data: {
+      enCoursId: enCours2.id,
+      workshopId: workshop2.id,
+      rfidOrderId: rfidOrder2.id,
+      reference: 7002,
+    }
   });
 
   // Create Orders
   const order1 = await prisma.order.create({
     data: {
       status: 1,
-      startDate: new Date(),
-      endDate: new Date(new Date().setDate(new Date().getDate() + 5)),
-    },
+      startDate: new Date('2024-06-01T08:00:00'),
+      endDate: new Date('2024-06-01T18:00:00'),
+      enCoursId: enCours1.id,
+      workshopId: workshop1.id,
+      rfidOrderId: rfidOrder1.id,
+    }
   });
 
   const order2 = await prisma.order.create({
     data: {
-      status: 0,
-      startDate: new Date(),
-      endDate: new Date(new Date().setDate(new Date().getDate() + 10)),
-    },
+      status: 2,
+      startDate: new Date('2024-06-02T09:00:00'),
+      endDate: new Date('2024-06-02T17:00:00'),
+      enCoursId: enCours2.id,
+      workshopId: workshop2.id,
+      rfidOrderId: rfidOrder2.id,
+    }
   });
 
   // Create Artisans
-  const artisan1 = await prisma.artisan.create({ data: { name: "Artisan A" } });
-  const artisan2 = await prisma.artisan.create({ data: { name: "Artisan B" } });
+  const artisan1 = await prisma.artisan.create({
+    data: { name: 'John Doe' }
+  });
+  const artisan2 = await prisma.artisan.create({
+    data: { name: 'Jane Smith' }
+  });
 
   // Create Supports
   await prisma.support.create({
@@ -58,9 +113,9 @@ async function main() {
       artisanId: artisan1.id,
       workshopId: workshop1.id,
       type: 1,
-      startDate: new Date(),
-      endDate: new Date(new Date().setDate(new Date().getDate() + 7)),
-    },
+      startDate: new Date('2024-06-01T09:30:00'),
+      endDate: new Date('2024-06-01T16:00:00'),
+    }
   });
 
   await prisma.support.create({
@@ -69,41 +124,53 @@ async function main() {
       artisanId: artisan2.id,
       workshopId: workshop2.id,
       type: 2,
-      startDate: new Date(),
-      endDate: new Date(new Date().setDate(new Date().getDate() + 10)),
-    },
+      startDate: new Date('2024-06-02T10:00:00'),
+      endDate: new Date('2024-06-02T15:30:00'),
+    }
   });
 
-  // Create Rfids and RfidOrders
-  const rfid1 = await prisma.rfid.create({ data: { enCoursId: enCours1.id, workshopId: workshop1.id, reference: 301 } });
-  const rfid2 = await prisma.rfid.create({ data: { enCoursId: enCours2.id, workshopId: workshop2.id, reference: 302 } });
+  // Create Alerts
+  await prisma.alert.create({
+    data: {
+      orderId: order1.id,
+      type: 1,
+      startDate: new Date('2024-06-01T11:00:00'),
+      endDate: new Date('2024-06-01T12:00:00'),
+    }
+  });
 
-  const rfidOrder1 = await prisma.rfidOrder.create({ data: { rfid: rfid1.id, orderId: order1.id, status: 1 } });
-  const rfidOrder2 = await prisma.rfidOrder.create({ data: { rfid: rfid2.id, orderId: order2.id, status: 0 } });
+  await prisma.alert.create({
+    data: {
+      orderId: order2.id,
+      type: 2,
+      startDate: new Date('2024-06-02T13:00:00'),
+      endDate: new Date('2024-06-02T14:00:00'),
+    }
+  });
 
   // Create Events
   await prisma.event.create({
     data: {
       rfidOrderId: rfidOrder1.id,
-      timestamp: new Date(),
+      timestamp: new Date('2024-06-01T08:30:00'),
       eventType: 1,
-    },
+    }
   });
 
   await prisma.event.create({
     data: {
       rfidOrderId: rfidOrder2.id,
-      timestamp: new Date(),
+      timestamp: new Date('2024-06-02T09:15:00'),
       eventType: 2,
-    },
+    }
   });
 
-  console.log("Data generated successfully!");
+  console.log('✅ Seeding complete!');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('❌ Seeding failed:', e);
     process.exit(1);
   })
   .finally(async () => {

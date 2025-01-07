@@ -40,6 +40,48 @@ app.get("/encours", async (req, res) => {
   }
 });
 
+//Get en-cours by id
+app.get("/encours/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const encours = await prisma.enCours.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        Antenna: true,
+      },
+    });
+    res.json(encours);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch EnCours." });
+  }
+});
+
+//get all orders in en-cours id
+app.get("/encours/:id/orders", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const orders = await prisma.order.findMany({
+      where: {
+        enCoursId: parseInt(id),
+      },
+      include: {
+        RfidOrder: true,
+        Alert: true,
+        Support: true,
+      },
+    });
+    const ordersWithStats = orders.map(order => ({
+      ...order,
+      daysSinceCreation: calculateDaysDifference(order.startDate),
+    }));
+    res.json(ordersWithStats);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch orders." });
+  }
+});
+
 // Get all Workshops
 app.get("/workshops", async (req, res) => {
   try {
@@ -54,7 +96,46 @@ app.get("/workshops", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch workshops." });
   }
 });
-
+// workshop x endpoint
+app.get("/workshops/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const workshop = await prisma.workshop.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        EnCours: true,
+      },
+    });
+    res.json(workshop);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch workshop." });
+  }
+});
+//Get orders by workshop
+app.get("/workshops/:id/orders", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const orders = await prisma.order.findMany({
+      where: {
+        workshopId: parseInt(id),
+      },
+      include: {
+        RfidOrder: true,
+        Alert: true,
+        Support: true,
+      },
+    });
+    const ordersWithStats = orders.map(order => ({
+      ...order,
+      daysSinceCreation: calculateDaysDifference(order.startDate),
+    }));
+    res.json(ordersWithStats);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch orders." });
+  }
+});
 // Get all Orders with time since creation
 app.get("/orders", async (req, res) => {
   try {
@@ -129,6 +210,34 @@ app.get("/rfids", async (req, res) => {
   }
 });
 
+//Get all supports
+app.get("/supports", async (req, res) => {
+  try {
+    const supports = await prisma.support.findMany({
+      include: {
+        Artisan: true,
+        Order: true
+      },
+    });
+    res.json(supports);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch supports." });
+  }
+});
+
+//Get mean support duration
+app.get("/supports/mean", async (req, res) => {
+  try {
+    const supports = await prisma.support.findMany();
+    const meanDuration = supports.reduce((sum, support) => {
+      const hours = Math.abs(new Date(support.endDate) - new Date(support.startDate)) / (1000 * 60 * 60);
+      return sum + hours;
+    }, 0) / supports.length;
+    res.json({ meanDuration });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch supports." });
+  }
+});
 //************************************************************
 //POST REQUESTS
 //************************************************************
@@ -150,6 +259,84 @@ app.post("/workshops", async (req, res) => {
         res.status(500).json({ error: "Failed to create workshop." });
     }
     });
+
+// Handle RFID detection from Antenna
+app.post("/antennas/:id/rfids", async (req, res) => {
+  const { id } = req.params; // Antenna ID
+  const { rfids, timestamp } = req.body; // Array of RFID IDs & Timestamp
+
+  if (!rfids || !timestamp) {
+    return res.status(400).json({ error: "RFIDs and timestamp are required." });
+  }
+
+  try {
+    const antennaId = parseInt(id);
+    const detectedRfids = new Set(rfids); // Use a set for fast lookups
+
+    // Fetch current RFIDs in this antenna's EnCours
+    const enCours = await prisma.enCours.findUnique({
+      where: { antennaId },
+      include: { Rfid: true },
+    });
+
+    if (!enCours) {
+      return res.status(404).json({ error: "EnCours not found for this antenna." });
+    }
+
+    const currentRfids = new Set(enCours.Rfid.map(rfid => rfid.id));
+
+    // Calculate changes
+    const enteredRfids = [...detectedRfids].filter(rfid => !currentRfids.has(rfid));
+    const exitedRfids = [...currentRfids].filter(rfid => !detectedRfids.has(rfid));
+
+    // Process entered RFIDs
+    for (const rfidId of enteredRfids) {
+      await prisma.event.create({
+        data: {
+          rfidOrderId: rfidId,
+          timestamp: new Date(timestamp),
+          eventType: 1, // 1 for "come"
+        },
+      });
+
+      await prisma.rfid.update({
+        where: { id: rfidId },
+        data: {
+          enCoursId: enCours.id,
+          workshopId: null, // Reset workshop if moving into EnCours
+        },
+      });
+    }
+
+    // Process exited RFIDs
+    for (const rfidId of exitedRfids) {
+      await prisma.event.create({
+        data: {
+          rfidOrderId: rfidId,
+          timestamp: new Date(timestamp),
+          eventType: 0, // 0 for "quit"
+        },
+      });
+
+      await prisma.rfid.update({
+        where: { id: rfidId },
+        data: {
+          enCoursId: null,
+          workshopId: null, // Reset location when leaving
+        },
+      });
+    }
+
+    res.json({
+      message: "RFID detection processed successfully.",
+      enteredRfids,
+      exitedRfids,
+    });
+  } catch (error) {
+    console.error("Error processing RFID detection:", error);
+    res.status(500).json({ error: "Failed to process RFID detection." });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
