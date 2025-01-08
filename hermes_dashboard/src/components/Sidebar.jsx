@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, Settings, BarChart2, Factory, Users, Box } from 'lucide-react';
+import ImageFile from '../assets/logo.png';
 
 const menuItems = [
   { icon: Home, label: 'Accueil', path: '/' },
@@ -14,12 +15,8 @@ const menuItems = [
 const Sidebar = () => {
   return (
     <div className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 p-4">
-      <div className="flex items-center gap-3 mb-8 px-2">
-        <img
-          src="./assets/logo.png"
-          alt="Hermes Logo"
-          className="h-12 w-12 rounded-full"
-        />
+      <div className="flex items-center justify-center gap-3 mb-8">
+        <img src={ImageFile} alt="Logo" className='w-1/2' />
       </div>
       <nav className="space-y-1">
         {menuItems.map((item) => (
