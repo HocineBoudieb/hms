@@ -1,13 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Settings, BarChart2, Factory, Users, Box } from 'lucide-react';
+import { LayoutDashboard , Settings, Users, Table  } from 'lucide-react';
 import ImageFile from '../assets/logo.png';
 
 const menuItems = [
-  { icon: Home, label: 'Accueil', path: '/' },
-  { icon: Factory, label: 'Production', path: '/production' },
-  { icon: BarChart2, label: 'Statistiques', path: '/statistics' },
-  { icon: Box, label: 'Inventaire', path: '/inventory' },
+  { icon: LayoutDashboard, label: 'Accueil', path: '/' },
+  { icon: Table , label: 'All Tables', path: '/tables' },
   { icon: Users, label: 'Équipes', path: '/teams' },
   { icon: Settings, label: 'Paramètres', path: '/settings' },
 ];

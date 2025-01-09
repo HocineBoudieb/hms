@@ -32,6 +32,7 @@ app.get("/encours", async (req, res) => {
     const encours = await prisma.enCours.findMany({
       include: {
         Antenna: true,
+        Rfid: true,
       },
     });
     res.json(encours);
@@ -50,6 +51,7 @@ app.get("/encours/:id", async (req, res) => {
       },
       include: {
         Antenna: true,
+        Rfid: true,
       },
     });
     res.json(encours);
@@ -89,6 +91,7 @@ app.get("/workshops", async (req, res) => {
     const workshops = await prisma.workshop.findMany({
       include: {
         EnCours: true,
+        Rfid: true,
       },
     });
     res.json(workshops);

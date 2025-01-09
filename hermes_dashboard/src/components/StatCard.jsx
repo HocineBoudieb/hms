@@ -3,7 +3,7 @@ import { Card, Typography, Box } from '@mui/material';
 
 const StatCard = ({ title, value, percentageChange, isIncrease, Icon, iconColor = '#7D0000' }) => {
     return (
-        <Card elevation={0} sx={{ borderRadius: 2, padding: 2, display: 'flex', flexDirection: 'column', gap: 1, width: 225 , height: 160 }}>
+        <Card elevation={0} sx={{ borderRadius: 2, padding: 2, display: 'flex', flexDirection: 'column', gap: 1, width: '23%' , height: 160 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography variant="subtitle1" color="text.secondary">
                     {title}
