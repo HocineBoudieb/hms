@@ -241,6 +241,16 @@ app.get("/supports/mean", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch supports." });
   }
 });
+//get alerts
+app.get("/alerts",async (req,res) => {
+  try{
+      const alerts = await prisma.alert.findMany();
+      res.json(alerts);
+  }catch (error) {
+      res.status(500).json({error: "Failed to fetch alerts"});
+  }
+});
+
 //************************************************************
 //POST REQUESTS
 //************************************************************
