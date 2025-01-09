@@ -1,14 +1,15 @@
 import React from 'react';
 import { Card, Typography, Box } from '@mui/material';
+import tinycolor from 'tinycolor2';
 
 const StatCard = ({ title, value, percentageChange, isIncrease, Icon, iconColor = '#7D0000' }) => {
     return (
-        <Card elevation={0} sx={{ borderRadius: 2, padding: 2, display: 'flex', flexDirection: 'column', gap: 1, width: '23%' , height: 160 }}>
+        <Card elevation={0} sx={{ borderRadius: 2, padding: 1.5, display: 'flex', flexDirection: 'column', gap: 1, width: '23%' , height: 150 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="subtitle1" color="text.secondary">
+                <Typography variant="subtitle2" color="text.secondary">
                     {title}
                 </Typography>
-                <Box sx={{ backgroundColor: '#FAD2D2', borderRadius: '40%', padding: 1 }}>
+                <Box sx={{ backgroundColor: tinycolor(iconColor).lighten(25).toString(), borderRadius: '40%', padding: 1 }}>
                     {Icon && <Icon sx={{ color: iconColor }} />}
                 </Box>
             </Box>
