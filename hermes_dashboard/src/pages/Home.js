@@ -3,6 +3,7 @@ import StatCard from '../components/StatCard';
 import Display from '../components/Display';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ContentCutIcon from '@mui/icons-material/ContentCut';
+import {Users} from 'lucide-react';
 
 const Home= () => {
     return (
@@ -19,12 +20,12 @@ const Home= () => {
                         iconColor="#FFA500"
                     />
                     <StatCard
-                        title="Total Alerts"
-                        value="10"
-                        percentageChange={5}
-                        isIncrease={false}
-                        Icon={ErrorOutlineIcon}
-                        iconColor="#FF5733"
+                        title="Mean Work Hours"
+                        value="6 h"
+                        percentageChange={16}
+                        isIncrease={true}
+                        Icon={Users}
+                        iconColor="#A831F0"
                     />
                     <StatCard
                         title="Total Alerts"

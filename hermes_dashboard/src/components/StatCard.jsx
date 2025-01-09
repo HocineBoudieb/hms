@@ -4,7 +4,7 @@ import tinycolor from 'tinycolor2';
 
 const StatCard = ({ title, value, percentageChange, isIncrease, Icon, iconColor = '#7D0000' }) => {
     return (
-        <Card elevation={0} sx={{ borderRadius: 2, padding: 1.5, display: 'flex', flexDirection: 'column', gap: 1, width: '23%' , height: 150 }}>
+        <Card elevation={0} sx={{ borderRadius: 2, padding: 1.5, display: 'flex', flexDirection: 'column', gap: 1, width: '23%' , height: 140 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Typography variant="subtitle2" color="text.secondary">
                     {title}
@@ -13,7 +13,7 @@ const StatCard = ({ title, value, percentageChange, isIncrease, Icon, iconColor 
                     {Icon && <Icon sx={{ color: iconColor }} />}
                 </Box>
             </Box>
-            <Typography variant="h4" fontWeight="bold">
+            <Typography variant="h5" fontWeight="bold">
                 {value}
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -21,7 +21,7 @@ const StatCard = ({ title, value, percentageChange, isIncrease, Icon, iconColor 
                     {isIncrease ? '▲' : '▼'} {percentageChange}%
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
-                    Up from yesterday
+                    from yesterday
                 </Typography>
             </Box>
         </Card>
