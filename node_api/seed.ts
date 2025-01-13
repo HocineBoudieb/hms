@@ -74,8 +74,6 @@ async function main() {
     rfidOrders.map((ro, i) =>
       prisma.rfid.create({
         data: {
-          enCoursId: enCours[i % enCours.length].id,
-          workshopId: workshops[i % workshops.length].id,
           rfidOrderId: ro.rfidOrder.id,
           reference: i + 1,
         },

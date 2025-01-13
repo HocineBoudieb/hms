@@ -102,6 +102,14 @@ class AntennaSimulator:
                 rfid_id = int(widget.cget("text").split("_")[1])
                 self.move_rfid_to_registration(rfid_id)
             else:
+                # If RFID is not moved to any antenna, place it back to its original position
+                # Remove the RFID from the registration antenna if it's moved out
+                rfid_id = int(widget.cget("text").split("_")[1])
+                if rfid_id in self.registration_antenna:
+                    self.registration_antenna.remove(rfid_id)
+                for ant in self.antennas.values():
+                    if rfid_id in ant:
+                        ant.remove(rfid_id)
                 widget.place_forget()
                 widget.grid(row=1 + (int(widget.cget("text").split("_")[1])-1)//5, 
                             column=(int(widget.cget("text").split("_")[1])-1)%5, 
@@ -163,17 +171,23 @@ class AntennaSimulator:
     def send_antenna_data(self):
         for antenna_id, rfids in self.antennas.items():
             if rfids:
-                url = self.endpoint.format(antenna_id)
                 data = {
                     "rfids": rfids,
                     "timestamp": datetime.now().isoformat()
                 }
-                try:
-                    response = requests.post(url, json=data)
-                    print(f"Sent data for Antenna {antenna_id}: {response.status_code}")
-                    print(f"Data sent: {data}")
-                except requests.RequestException as e:
-                    print(f"Error sending data for Antenna {antenna_id}: {e}")
+            else:
+                data = {
+                    "rfids": [],
+                    "timestamp": datetime.now().isoformat()
+                }
+            
+            url = self.endpoint.format(antenna_id) 
+            try:
+                response = requests.post(url, json=data)
+                print(f"Sent data for Antenna {antenna_id}: {response.status_code}")
+                print(f"Data sent: {data}")
+            except requests.RequestException as e:
+                print(f"Error sending data for Antenna {antenna_id}: {e}")
 
     def list_window_exists(self):
         return hasattr(self, 'list_window') and self.list_window.winfo_exists()
@@ -215,6 +229,8 @@ class AntennaSimulator:
 
     def request_order_creation(self):
         selected_rfid = self.rfid_combobox.get()
+        selected_rfid = int(selected_rfid.split("_")[1])
+        print(f"Creating order for RFID {selected_rfid}...")
         
         start_date = datetime.now()
         end_date = start_date + timedelta(days=random.randint(1, 7))
@@ -222,10 +238,11 @@ class AntennaSimulator:
             "rfidId": selected_rfid,
             "startDate": start_date.isoformat(),
             "endDate": end_date.isoformat(),
-            "status": random.choice(["PENDING", "IN_PROGRESS", "COMPLETED"]),
-            "enCoursId": random.randint(1, 3),
-            "workshopId": random.randint(1, 5)
+            "status": 0,
+            "enCoursId": 22,
+            "workshopId": 23
         }
+        print(f"Order data: {order}")
 
         try:
             response = requests.post(self.order_endpoint, json=order)

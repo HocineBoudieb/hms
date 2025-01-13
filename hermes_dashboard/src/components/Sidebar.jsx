@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard , Settings, Users, Table  } from 'lucide-react';
+import { LayoutDashboard , Settings, Siren, Table  } from 'lucide-react';
 import ImageFile from '../assets/logo.png';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Accueil', path: '/' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
   { icon: Table , label: 'All Tables', path: '/tables' },
-  { icon: Users, label: 'Équipes', path: '/teams' },
-  { icon: Settings, label: 'Paramètres', path: '/settings' },
+  { icon: Siren, label: 'Alerts', path: '/teams' },
+  { icon: Settings, label: 'Settings', path: '/settings' },
 ];
 
 const Sidebar = () => {

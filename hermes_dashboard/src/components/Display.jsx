@@ -22,6 +22,13 @@ const Display = () => {
         };
 
         fetchWorkshops();
+
+        //fetch every 2 seconds
+        const interval = setInterval(fetchWorkshops, 2000);
+
+
+        //clear Timer when component unmount
+        return () => clearInterval(interval);
     }, []);
 
     // Fetch encours
@@ -36,6 +43,13 @@ const Display = () => {
         };
 
         fetchEncours();
+
+        //fetch every 2 seconds
+        const interval = setInterval(fetchEncours, 2000);
+
+        //clear Timer when component unmount
+        return () => clearInterval(interval);
+
     }, []);
 
     const handleClick = async (item) => {
@@ -75,7 +89,7 @@ const Display = () => {
                                 <img src={ImageEC} alt={`En Cours ${workshop.EnCours.name}`} className="w-full rounded-lg" />
                                 {encoursItem && (
                                     <div className="absolute top-2 right-2 bg-orange-500 text-white text-base font-bold px-4 py-3 rounded-full shadow-lg" onClick={() => handleClick(encoursItem)}>
-                                        {encoursItem.Rfid.length}
+                                        {encoursItem.Order.length}
                                     </div>
                                 )}
                             </div>
@@ -84,7 +98,7 @@ const Display = () => {
                             <div className="relative w-full mt-4">
                                 <img src={ImageWS} alt={`Workshop ${workshop.name}`} className="w-full rounded-lg" />
                                 <div className="absolute top-2 right-2 bg-orange-500 text-white text-base font-bold px-4 py-3 rounded-full shadow-lg" onClick={() => handleClick(workshop)}>
-                                    {workshop.Rfid.length}
+                                    {workshop.Order.length}
                                 </div>
                             </div>
                         </div>

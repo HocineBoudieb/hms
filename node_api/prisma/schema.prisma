@@ -9,17 +9,17 @@ datasource db {
 
 model Event {
   id           Int        @id @default(autoincrement())
-  rfidOrderId  Int
+  orderId      Int
   timestamp    DateTime
   eventType    Int
-  RfidOrder    RfidOrder  @relation(fields: [rfidOrderId], references: [id])
+  Order        Order     @relation(fields: [orderId], references: [id])
 }
 
 model Rfid {
   id          Int       @id @default(autoincrement())
-  enCoursId   Int
-  workshopId  Int
-  rfidOrderId Int       @unique
+  enCoursId   Int?
+  workshopId  Int?
+  rfidOrderId Int?       @unique
   reference   Int
   RfidOrder   RfidOrder? @relation(fields: [rfidOrderId], references: [id])
 }
@@ -36,13 +36,14 @@ model Order {
   id        Int        @id @default(autoincrement())
   status    Int
   startDate DateTime
-  endDate   DateTime
-  enCoursId Int
-  workshopId Int
-  rfidOrderId Int      @unique
-  Workshop  Workshop   @relation(fields: [workshopId], references: [id])
-  EnCours   EnCours    @relation(fields: [enCoursId], references: [id])
+  endDate   DateTime?
+  enCoursId Int?
+  workshopId Int?
+  rfidOrderId Int?      @unique
+  Workshop  Workshop?   @relation(fields: [workshopId], references: [id])
+  EnCours   EnCours?    @relation(fields: [enCoursId], references: [id])
   RfidOrder RfidOrder? @relation(fields: [rfidOrderId], references: [id])
+  Event     Event[]
   Alert     Alert[]
   Support   Support[]
 }
@@ -64,11 +65,9 @@ model Alert {
 
 model RfidOrder {
   id        Int       @id @default(autoincrement())
-  rfid      Int
   status    Int
-  Rfid      Rfid?
+  Rfid      Rfid?    
   Order     Order?
-  Event     Event[]
 }
 
 model Workshop {
