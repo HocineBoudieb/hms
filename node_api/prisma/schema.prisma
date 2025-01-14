@@ -12,6 +12,7 @@ model Event {
   orderId      Int
   timestamp    DateTime
   eventType    Int
+  enCoursId    Int?
   Order        Order     @relation(fields: [orderId], references: [id])
 }
 
@@ -86,7 +87,7 @@ model Support {
   workshopId Int
   type       Int
   startDate  DateTime
-  endDate    DateTime
+  endDate    DateTime?
   Order      Order     @relation(fields: [orderId], references: [id])
   Artisan    Artisan   @relation(fields: [artisanId], references: [id])
   Workshop   Workshop  @relation(fields: [workshopId], references: [id])

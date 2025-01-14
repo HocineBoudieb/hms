@@ -17,7 +17,21 @@ class AntennaSimulator:
         self.send_data = False
         self.endpoint = "http://localhost:8081/antennas/{}/rfids"
         self.order_endpoint = "http://localhost:8081/orders"
+        self.support_endpoint = "http://localhost:8081/supports"
 
+        #Get Artisan data in python
+        try:
+            response = requests.get("http://localhost:8081/artisans")
+            if response.status_code == 200:
+                print(f"Artisans data: {response.json()}")
+            else:
+                print(f"Failed to get artisans data. Status code: {response.status_code}")
+        except requests.RequestException as e:
+            print(f"Error getting artisans data: {e}")
+        #Get Artisans names
+        self.artisans = []
+        for artisan in response.json():
+            self.artisans.append(artisan["name"])
         self.create_widgets()
 
     def create_widgets(self):
@@ -44,6 +58,7 @@ class AntennaSimulator:
             box.bind("<ButtonPress-1>", self.on_drag_start)
             box.bind("<B1-Motion>", self.on_drag_motion)
             box.bind("<ButtonRelease-1>", self.on_drag_release)
+            box.bind("<Button-3>", self.on_rfid_double_click)
             self.rfid_boxes[i] = box
 
         # Send data toggle
@@ -73,6 +88,53 @@ class AntennaSimulator:
             self.master.grid_columnconfigure(i, weight=1)
         for i in range(11):
             self.master.grid_rowconfigure(i, weight=1)
+
+    def on_rfid_double_click(self, event):
+        widget = event.widget
+        rfid_id = int(widget.cget("text").split("_")[1])
+        #check if the rfid is in any of the antennas
+        for ant in self.antennas.values():
+            #if the rfid is in an antenna, do not open a new window
+            if rfid_id in ant:
+                return
+        print(f"Opening support creation window for RFID {rfid_id}...")
+        # Open a new window for support creation
+        self.open_support_window(rfid_id)
+
+    def open_support_window(self, rfid_id):
+        support_window = tk.Toplevel(self.master)
+        support_window.title(f"Support Creation for RFID {rfid_id}")
+        support_window.geometry("400x300")
+
+        # Create support form
+        ttk.Label(support_window, text="Support Type:").grid(row=0, column=0, padx=5, pady=5)
+        support_type = ttk.Combobox(support_window, values=["Type 1", "Type 2", "Type 3"])
+        support_type.grid(row=0, column=1, padx=5, pady=5)
+        support_type.set("Type 1")
+        ttk.Label(support_window, text="Artisan").grid(row=1, column=0, padx=5, pady=5)
+        artisan = ttk.Combobox(support_window, values=self.artisans)
+        artisan.grid(row=1, column=1, padx=5, pady=5)
+        artisan.set(self.artisans[0])
+        #Submit button
+        submit_button = ttk.Button(support_window, text="Submit")
+        submit_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+        submit_button.bind("<Button-1>", lambda event: self.submit_support_creation(event, rfid_id, support_type, artisan))
+
+    def submit_support_creation(self, event, rfid_id, support_type, artisan):
+        support_data = {
+            "rfidId": rfid_id,
+            "type": support_type.get(),
+            "artisan": artisan.get()
+        }
+        print(f"Support data: {support_data}")
+        try:
+            response = requests.post(self.support_endpoint, json=support_data)
+            if response.status_code == 200:
+                print(f"Support created successfully: {response.json()}")
+            else:
+                print(f"Failed to create support. Status code: {response.status_code}")
+        except requests.RequestException as e:
+            print(f"Error creating support: {e}")
 
     def on_drag_start(self, event):
         widget = event.widget

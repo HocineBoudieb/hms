@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-
 const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
@@ -212,12 +211,30 @@ app.get("/events", async (req, res) => {
   try {
     const events = await prisma.event.findMany({
       include: {
-        RfidOrder: true,
+        Order: true,
       },
     });
     res.json(events);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch events." });
+  }
+});
+
+//Get order last event
+app.get("/orders/:id/last-event", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const events = await prisma.event.findMany({
+      where: {
+        orderId: parseInt(id),
+      },
+      orderBy: {
+        timestamp: 'desc',
+      },
+    });
+    res.json(events[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch last event." });
   }
 });
 
@@ -250,19 +267,6 @@ app.get("/supports", async (req, res) => {
   }
 });
 
-//Get mean support duration
-app.get("/supports/mean", async (req, res) => {
-  try {
-    const supports = await prisma.support.findMany();
-    const meanDuration = supports.reduce((sum, support) => {
-      const hours = Math.abs(new Date(support.endDate) - new Date(support.startDate)) / (1000 * 60 * 60);
-      return sum + hours;
-    }, 0) / supports.length;
-    res.json({ meanDuration });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to fetch supports." });
-  }
-});
 //get alerts
 app.get("/alerts",async (req,res) => {
   try{
@@ -272,6 +276,17 @@ app.get("/alerts",async (req,res) => {
       res.status(500).json({error: "Failed to fetch alerts"});
   }
 });
+
+//Get all stats
+app.get("/stats", async (req, res) => {
+  try {
+    const stats = await prisma.stats.findMany();
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch stats." });
+  }
+});
+
 
 //************************************************************
 //POST REQUESTS
@@ -404,6 +419,7 @@ app.post("/antennas/:id/rfids", async (req, res) => {
           await prisma.event.create({
             data: {
               orderId: order.id,
+              enCoursId: enCours.id,
               timestamp: new Date(timestamp),
               eventType: 1, // 1 for "come"
             },
@@ -441,19 +457,15 @@ app.post("/antennas/:id/rfids", async (req, res) => {
           await prisma.event.create({
             data: {
               orderId: order.id,
+              enCoursId: enCours.id,
               timestamp: new Date(timestamp),
               eventType: 0, // 0 for "quit"
             },
-          });
-          //find worhsop with the en-cours id
-          const workshop = await prisma.workshop.findFirst({
-            where: { enCoursId: enCours.id },
           });
           await prisma.order.update({
             where: { rfidOrderId: rfidorderId },
             data: {
               enCoursId: null,
-              workshopId: workshop.id,
             },
           });
         }
@@ -525,8 +537,117 @@ app.post("/orders", async (req, res) => {
   }
 });
 
+// Create a new Support
+// DOCUMENTATION
+/*
+/supports endpoint POST request to create a new support with the following parameters:
+@params
+- startDate: The support start date.
+- endDate: The support end date.
+- artisanId: The Artisan ID.
+- orderId: The Order ID.
+@returns The created support.
+*/
+app.post("/supports", async (req, res) => {
+  try {
+    const { rfidId, type, artisan } = req.body;
+    //Get order from rfid ref
+    const rfid = await prisma.rfid.findFirst({
+      where: {
+        reference: rfidId,
+      },
+    });
+    const rfidorderId = rfid.rfidOrderId;
+    const order = await prisma.order.findUnique({
+      where: {
+        rfidOrderId: rfidorderId,
+      },
+    });
+    //get order last localization from last event
+    const event = await prisma.event.findMany({
+      where: {
+        orderId: order.id,
+      },
+      orderBy: {
+        timestamp: 'desc',
+      },
+    });
+    const lastEvent = event[0];
+    const enCoursId = lastEvent.enCoursId;
+
+    const Workshop = await prisma.workshop.findFirst({
+      where: {
+        enCoursId: enCoursId,
+      },
+    });
+    //Assign workshop to order
+    await prisma.order.update({
+      where: {
+        id: order.id,
+      },
+      data: {
+        workshopId: Workshop.id,
+      },
+    });
+    //Get artisan from artisan name
+    const artisan_instance = await prisma.artisan.findFirst({
+      where: {
+        name: artisan,
+      },
+    });
+    const support = await prisma.support.create({
+      data: {
+        orderId: order.id,
+        artisanId: artisan_instance.id,
+        workshopId: Workshop.id,
+        type: parseInt(type.split(" ")[1]),
+        startDate: new Date(),
+        endDate: null,
+      },
+    });
+    res.json(support);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create support." });
+  }
+});
 
 
+//****************************************************************
+//CHECK FOR ANOMALIES (ALERTS)
+//****************************************************************
+
+async function checkForAnomalies() {
+  //Check if an order is in an encours and in a workshop
+  const orders = await prisma.order.findMany();
+  const anomalies = orders.filter(order => order.enCoursId && order.workshopId);
+
+
+  //Check if an order is not in an encours and not in a workshop for more than 10 seconds
+  const now = new Date();
+  const tenSecondsAgo = new Date(now.getTime() - 10000);
+  const ordersWithoutLocation = orders.filter(order => !order.enCoursId && !order.workshopId);
+  const ordersWithoutLocationAnomalies = [];
+  //check if these orders last event is more than 10 seconds ago
+  for (const order of ordersWithoutLocation) {
+    const events = await prisma.event.findMany({
+      where: {
+        orderId: order.id,
+      },
+      orderBy: {
+        timestamp: 'desc',
+      },
+    });
+    const lastEvent = events[0];
+    lastEvent_timestamp = new Date(lastEvent.timestamp);
+
+    if (lastEvent_timestamp < tenSecondsAgo) {
+      ordersWithoutLocationAnomalies.push(order);
+    }
+  }
+}
+
+
+setInterval(checkForAnomalies, 5000);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
