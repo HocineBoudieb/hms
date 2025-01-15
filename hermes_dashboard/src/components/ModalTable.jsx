@@ -12,7 +12,7 @@ import {
 
 const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
     return (
-        <div className={`fixed top-1 left-0 w-full h-full bg-black bg-opacity-50 z-50 ${isModalVisible ? 'block' : 'hidden'}`}>
+        <div className={`fixed top-1 left-0 w-full h-full bg-black bg-opacity-50 z-50 ${isModalVisible ? 'block' : 'hidden'} overflow-y-auto`}>
             <div className="bg-white p-4 rounded-lg shadow-lg max-w-4xl mx-auto mt-20 relative">
                 <Typography variant="h6" gutterBottom>
                     Orders Table
@@ -24,10 +24,9 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                 <TableCell>ID</TableCell>
                                 <TableCell>Status</TableCell>
                                 <TableCell>Start Date</TableCell>
-                                <TableCell>End Date</TableCell>
                                 <TableCell>RFID</TableCell>
-                                <TableCell>Alerts</TableCell>
-                                <TableCell>Supports</TableCell>
+                                <TableCell>Last Alert</TableCell>
+                                <TableCell>Last Support</TableCell>
                                 <TableCell>Since</TableCell>
                             </TableRow>
                         </TableHead>
@@ -37,21 +36,20 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                     <TableCell>{row.id}</TableCell>
                                     <TableCell>{row.status}</TableCell>
                                     <TableCell>{new Date(row.startDate).toLocaleString()}</TableCell>
-                                    <TableCell>{new Date(row.endDate).toLocaleString()}</TableCell>
                                     <TableCell>{row.RfidOrder?.rfid || 'N/A'}</TableCell>
                                     <TableCell>
-                                        {row.Alert.map((alert) => (
-                                            <div key={alert.id}>
-                                                {`Type: ${alert.type}, Start: ${new Date(alert.startDate).toLocaleString()}, End: ${new Date(alert.endDate).toLocaleString()}`}
+                                        {row.Alert.length > 0 ? (
+                                            <div key={row.Alert[0].id}>
+                                                {`Type: ${row.Alert[0].type}, Start: ${new Date(row.Alert[0].startDate).toLocaleString()}, End: ${new Date(row.Alert[0].endDate).toLocaleString()}`}
                                             </div>
-                                        ))}
+                                        ) : 'N/A'}
                                     </TableCell>
                                     <TableCell>
-                                        {row.Support.map((support) => (
-                                            <div key={support.id}>
-                                                {`Type: ${support.type}, Artisan ID: ${support.artisanId}, Start: ${new Date(support.startDate).toLocaleString()}, End: ${new Date(support.endDate).toLocaleString()}`}
+                                        {row.Support.length > 0 ? (
+                                            <div key={row.Support[0].id}>
+                                                {`Type: ${row.Support[0].type}, Artisan ID: ${row.Support[0].artisanId}, Start: ${new Date(row.Support[0].startDate).toLocaleString()}, End: ${new Date(row.Support[0].endDate).toLocaleString()}`}
                                             </div>
-                                        ))}
+                                        ) : 'N/A'}
                                     </TableCell>
                                     <TableCell>
                                         {row.daysSinceCreation >= 1440

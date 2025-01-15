@@ -39,27 +39,7 @@ async function calculateMinutesDifference(lastEventTimestamp) {
   const res = Math.ceil(diffTime / (1000 * 60));
   return res;
 }
-function update_Stats(){
-  //calculate mean support duration
-  allSupports = prisma.support.findMany();
-  meanDuration = allSupports.reduce((sum, support) => {
-    const hours = Math.abs(new Date(support.endDate) - new Date(support.startDate)) / (1000 * 60 * 60);
-    return sum + hours;
-  }, 0) / allSupports.length;
-  //update Stats table
-  prisma.stats.update({
-    where: { id: 1 },
-    data: {
-      meanSupportDuration: meanDuration,
-    },
-  });
 
-  //calculate mean working hours per day
-  //divide total working hours by the number of days
-  
-
-
-}
 //************************************************************
 //GET REQUESTS ***********************************************
 //************************************************************
@@ -476,15 +456,6 @@ app.post("/antennas/:id/rfids", async (req, res) => {
             where: { rfidOrderId: rfidorderid },
           });
 
-
-          await prisma.event.create({
-            data: {
-              orderId: order.id,
-              enCoursId: enCours.id,
-              timestamp: new Date(timestamp),
-              eventType: 1, // 1 for "come"
-            },
-          });
           //check if the order is in a workshop
           if (order.workshopId) {
             //get last event timestamp
@@ -498,6 +469,16 @@ app.post("/antennas/:id/rfids", async (req, res) => {
               },
             });
           }
+
+          await prisma.event.create({
+            data: {
+              orderId: order.id,
+              enCoursId: enCours.id,
+              timestamp: new Date(timestamp),
+              eventType: 1, // 1 for "come"
+            },
+          });
+          
           await prisma.rfid.update({
             where: { id: rfidId },
             data: {
@@ -526,6 +507,16 @@ app.post("/antennas/:id/rfids", async (req, res) => {
           const order = await prisma.order.findUnique({
             where: { rfidOrderId: rfidorderId },
           });
+          //Get last event timestamp
+          const lastEventTimestamp = await getLastEventTimestamp(order.id);
+          //Create new time row with the time taken by the order in the en-cours
+          await prisma.time.create({
+            data: {
+              orderId: order.id,
+              duration: new Date()-lastEventTimestamp.getTime(),
+              enCoursId: enCours.id
+            },
+          });
           await prisma.event.create({
             data: {
               orderId: order.id,
@@ -547,16 +538,7 @@ app.post("/antennas/:id/rfids", async (req, res) => {
               enCoursId: null,
             },
           });
-          //Get last event timestamp
-          const lastEventTimestamp = await getLastEventTimestamp(order.id);
-          //Create new time row with the time taken by the order in the en-cours
-          await prisma.time.create({
-            data: {
-              orderId: order.id,
-              duration: new Date()-lastEventTimestamp,
-              enCoursId: enCours.id
-            },
-          });
+          
         }
       }
       res.json({
@@ -750,6 +732,13 @@ async function resolveAlert(alertId) {
   });
 }
 
+/**
+ * Check for anomalies in the orders and create alerts if necessary.
+ * Anomalies are defined as:
+ * - An order is in an encours and in a workshop
+ * - An order is not in an encours and not in a workshop for more than 10 seconds
+ * Also, check if the anomalies are resolved and close the corresponding alerts
+ */
 async function checkForAnomalies() {
   //Check if an order is in an encours and in a workshop
   const orders = await prisma.order.findMany();
@@ -821,6 +810,103 @@ async function checkForAnomalies() {
 
 
 setInterval(checkForAnomalies, 5000);
+
+//****************************************************************
+//STATS MANAGEMENT
+//****************************************************************
+//function to convert timestamp difference to hour or minutes depending on the difference
+function timestampToBestUnit(timestamp) {
+  const diffTime = timestamp
+  const diffMinutes = Math.ceil(diffTime / (1000 * 60));
+  const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));
+  if (diffMinutes < 60) {
+    return `${diffMinutes} minutes`;
+  } else {
+    return `${diffHours} hours`;
+  }
+}
+
+
+
+/**
+ * Updates the average time in encours and workshops in the stats table
+ * by querying the time table and calculating the difference from the current value
+ * in the stats table.
+ */
+async function update_Stats(){
+  //Update Average time in encours, by getting total times in time table where enCoursId is not null
+  const aggregate_time_in_encours = await prisma.time.aggregate({
+    _sum: {
+      duration: true,
+    },
+    where: {
+      enCoursId: {
+        not: null,
+      },
+    },
+  });
+  const total_time_in_encours = aggregate_time_in_encours._sum.duration;
+  //get the current value in stats table
+  const current_total_time_in_encours = await prisma.stats.findUnique({
+    where: {
+      id: 6,
+    },
+  });
+  const current_total_time_in_encours_value = parseInt(current_total_time_in_encours.value, 10);
+  //calculate the difference in percentage
+  const difference_encours = current_total_time_in_encours_value === 0 ? 0 : (Math.abs(parseInt(timestampToBestUnit(total_time_in_encours), 10) - current_total_time_in_encours_value) / current_total_time_in_encours_value) * 100;
+  let value_unit = timestampToBestUnit(total_time_in_encours);
+  //update the stat table
+  await prisma.stats.update({
+    where: {
+      id: 6,
+    },
+    data: {
+      value: parseInt(value_unit, 10),
+      change: difference_encours,
+      unit: value_unit.split(" ")[1],
+    },
+  });
+
+
+  //Update Average time in workshop, by getting total times in time table where workshopId is not null
+  const aggregate_time_in_workshop = await prisma.time.aggregate({
+    _sum: {
+      duration: true,
+    },
+    where: {
+      workshopId: {
+        not: null,
+      },
+    },
+  });
+  const total_time_in_workshop = aggregate_time_in_workshop._sum.duration;
+  //get the current value in stats table
+  const current_total_time_in_workshop = await prisma.stats.findUnique({
+    where: {
+      id: 1,
+    },
+  });
+  
+  const current_total_time_in_workshop_value = parseInt(current_total_time_in_workshop.value, 10);
+  //calculate the difference in percentage
+  const difference_workshop = current_total_time_in_workshop_value === 0 ? 0 : Math.abs(((parseInt(timestampToBestUnit(total_time_in_workshop), 10) - current_total_time_in_workshop_value) / current_total_time_in_workshop_value) * 100);
+  value_unit = timestampToBestUnit(total_time_in_workshop);
+  //update the stat table
+  await prisma.stats.update({
+    where: {
+      id: 1,
+    },
+    data: {
+      value: parseInt(value_unit, 10),
+      change: difference_workshop,
+      unit: value_unit.split(' ')[1]
+    },
+  });
+}
+
+
+setInterval(update_Stats, 60000);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
