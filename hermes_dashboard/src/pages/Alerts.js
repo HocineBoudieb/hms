@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Pie } from "react-chartjs-2";
+import { Doughnut } from "react-chartjs-2";
+//import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -67,14 +68,34 @@ const Alerts = () => {
         });
     };
 
-    const chartData = {
+    /*const chartData = {
         labels: Object.keys(metrics.typeDistribution),
         datasets: [{
             data: Object.values(metrics.typeDistribution),
             backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
             hoverBackgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
         }]
+    };*/
+    const resolvedAlerts = alerts.filter((alert) => alert.status === 0);
+    const alertsResolvedUnder10min = resolvedAlerts.filter(
+        (alert) => (new Date(alert.endDate) - new Date(alert.startDate)) < 600000).length;
+
+    const doughnutData = {
+        labels: ['Resolved under 10 min', 'Resolved over 10 min'],
+        datasets: [{
+            data: [alertsResolvedUnder10min, resolvedAlerts.length - alertsResolvedUnder10min],
+            backgroundColor: ['rgba(254, 124, 43, 0.95)', 'rgba(0, 153, 255, 0)'],
+            hoverBackgroundColor: ['rgba(254, 124, 43, 0.95)', 'rgba(0, 153, 255, 0.95)']
+        }]
     };
+    const doughnutOptions = {
+        plugins: {
+            legend: {
+                display: false 
+            }
+        }
+    };
+
 
     return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
@@ -87,10 +108,11 @@ const Alerts = () => {
                     <MetricCard title="Avg. Resolution Time" value={`${metrics.avgResolutionTime} min`} />
                 </div>
                 
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div style={{ width: '45%', backgroundColor: '#ffffff', padding: '20px', borderRadius: '8px' }}>
-                        <h2 style={{ marginTop: 0 }}>Alert Type Distribution</h2>
-                        <Pie data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />
+                <div className="flex justify-between">
+                    <div style={{  width: '45%', backgroundColor: '#ffffff', padding: '20px', borderRadius: '8px' }}>
+                        <strong><h2 className="text-2xl align-center">Alerts Resolved Under 10 Min</h2></strong>
+                        <Doughnut data={doughnutData} options={doughnutOptions} />
+                        {/*<Pie data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />*/}
                     </div>
                     
                     <div style={{ width: '50%', backgroundColor: '#ffffff', padding: '20px', borderRadius: '8px', maxHeight: '400px', overflowY: 'auto' }}>

@@ -10,12 +10,35 @@ app.use(express.json());
 app.use(cors());
 // Helper functions
 
-function calculateDaysDifference(startDate) {
-  const now = new Date();
-  const diffTime = Math.abs(now - new Date(startDate));
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+/**
+ * @function getLastEventTimestamp
+ * @description Returns the timestamp of the last event for the given order id
+ * @param {number} orderId - The id of the order
+ * @returns {number} The timestamp of the last event
+ */
+async function getLastEventTimestamp(orderId) {
+  const lastEvent = await prisma.event.findMany({
+    where: {
+      orderId: orderId,
+    },
+    orderBy: {
+      timestamp: 'desc',
+    },
+  });
+  return lastEvent[0].timestamp;
 }
-
+/**
+ * @function calculateMinutesDifference
+ * @description Returns the time difference between the current timestamp and a given timestamp in minutes
+ * @param {number} lastEventTimestamp - The timestamp from which to calculate the difference
+ * @returns {number} The time difference in minutes
+ */
+async function calculateMinutesDifference(lastEventTimestamp) {
+  const now = new Date();
+  const diffTime = Math.abs(now - lastEventTimestamp);
+  const res = Math.ceil(diffTime / (1000 * 60));
+  return res;
+}
 function update_Stats(){
   //calculate mean support duration
   allSupports = prisma.support.findMany();
@@ -98,11 +121,17 @@ app.get("/encours/:id/orders", async (req, res) => {
         Support: true,
       },
     });
-    const ordersWithStats = orders.map(order => ({
-      ...order,
-      daysSinceCreation: calculateDaysDifference(order.startDate),
-    }));
-    res.json(ordersWithStats);
+    const ordersWithDurationSinceLastEvent = await Promise.all(
+      orders.map(async (order) => {
+        const lastEventTimestamp = await getLastEventTimestamp(order.id);
+        const minutesDifference = await calculateMinutesDifference(lastEventTimestamp);
+        return {
+          ...order,
+          daysSinceCreation: minutesDifference,
+        };
+      })
+    );
+    res.json(ordersWithDurationSinceLastEvent);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch orders." });
   }
@@ -153,11 +182,19 @@ app.get("/workshops/:id/orders", async (req, res) => {
         Support: true,
       },
     });
-    const ordersWithStats = orders.map(order => ({
-      ...order,
-      daysSinceCreation: calculateDaysDifference(order.startDate),
-    }));
-    res.json(ordersWithStats);
+    const ordersWithDurationSinceLastEvent = await Promise.all(
+      orders.map(async (order) => {
+        const lastEventTimestamp = await getLastEventTimestamp(order.id);
+        const minutesDifference = await calculateMinutesDifference(lastEventTimestamp);
+        return {
+          ...order,
+          daysSinceCreation: minutesDifference,
+        };
+      })
+    );
+    
+    console.log(ordersWithDurationSinceLastEvent);
+    res.json(ordersWithDurationSinceLastEvent);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch orders." });
   }
@@ -172,11 +209,17 @@ app.get("/orders", async (req, res) => {
         Support: true,
       },
     });
-    const ordersWithStats = orders.map(order => ({
-      ...order,
-      daysSinceCreation: calculateDaysDifference(order.startDate),
-    }));
-    res.json(ordersWithStats);
+    const ordersWithDurationSinceLastEvent = await Promise.all(
+      orders.map(async (order) => {
+        const lastEventTimestamp = await getLastEventTimestamp(order.id);
+        const minutesDifference = await calculateMinutesDifference(lastEventTimestamp);
+        return {
+          ...order,
+          daysSinceCreation: minutesDifference,
+        };
+      })
+    );
+    res.json(ordersWithDurationSinceLastEvent);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch orders." });
   }
@@ -303,8 +346,9 @@ app.get("/stats", async (req, res) => {
 
 
 //************************************************************
-//POST REQUESTS
+//POST REQUESTS **********************************************
 //************************************************************
+
 // Create a new Workshop
 
 // DOCUMENTATION
@@ -336,7 +380,7 @@ app.post("/workshops", async (req, res) => {
 
 // Handle RFID detection from Antenna
 // DOCUMENTATION
-/*
+/** 
 /antennas/:id/rfids endpoint POST request to handle RFID detection from an antenna with the following parameters:
 @params
 - id: The Antenna ID.

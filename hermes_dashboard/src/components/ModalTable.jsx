@@ -27,8 +27,8 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                 <TableCell>End Date</TableCell>
                                 <TableCell>RFID</TableCell>
                                 <TableCell>Alerts</TableCell>
-                                <TableCell>Support</TableCell>
-                                <TableCell>Days Since Creation</TableCell>
+                                <TableCell>Supports</TableCell>
+                                <TableCell>Since</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -53,7 +53,13 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                             </div>
                                         ))}
                                     </TableCell>
-                                    <TableCell>{row.daysSinceCreation}</TableCell>
+                                    <TableCell>
+                                        {row.daysSinceCreation >= 1440
+                                            ? `${Math.floor(row.daysSinceCreation / 1440)} days ${Math.floor((row.daysSinceCreation % 1440) / 60)} hours`
+                                            : row.daysSinceCreation >= 60
+                                            ? `${Math.floor(row.daysSinceCreation / 60)} hours`
+                                            : `${row.daysSinceCreation} minutes`}
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
