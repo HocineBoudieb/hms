@@ -92,6 +92,14 @@ const Alerts = () => {
         plugins: {
             legend: {
                 display: false 
+            },
+            doughnutlabel: {
+                labels: [{
+                    text: `${Math.round((alertsResolvedUnder10min / resolvedAlerts.length) * 100)}%`,
+                    font: {
+                        size: '36'
+                    }
+                }]
             }
         }
     };

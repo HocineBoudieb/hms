@@ -31,6 +31,7 @@ model EnCours {
   Antenna   Antenna    @relation(fields: [antennaId], references: [id])
   Order     Order[]
   Workshop  Workshop[]
+  Time      Time[]
 }
 
 model Order {
@@ -47,6 +48,7 @@ model Order {
   Event     Event[]
   Alert     Alert[]
   Support   Support[]
+  Time      Time[]
 }
 
 model Artisan {
@@ -79,6 +81,7 @@ model Workshop {
   EnCours   EnCours   @relation(fields: [enCoursId], references: [id])
   Order     Order[]
   Support   Support[]
+  Time      Time[]
 }
 
 model Support {
@@ -107,4 +110,15 @@ model Stats {
   unit      String
   change    Int
   lastTime  DateTime
+}
+
+model Time{
+  id          Int       @id @default(autoincrement())
+  orderId     Int
+  duration    Int
+  enCoursId   Int?
+  workshopId  Int?
+  Order       Order     @relation(fields: [orderId], references: [id])
+  EnCours     EnCours?  @relation(fields: [enCoursId], references: [id])
+  Workshop    Workshop? @relation(fields: [workshopId], references: [id])
 }

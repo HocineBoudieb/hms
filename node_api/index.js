@@ -345,6 +345,17 @@ app.get("/stats", async (req, res) => {
 });
 
 
+//Get all time
+app.get("/time", async (req, res) => {
+  try {
+    const time = await prisma.time.findMany();
+    res.json(time);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch time." });
+  }
+});
+
+
 //************************************************************
 //POST REQUESTS **********************************************
 //************************************************************
@@ -474,7 +485,19 @@ app.post("/antennas/:id/rfids", async (req, res) => {
               eventType: 1, // 1 for "come"
             },
           });
-
+          //check if the order is in a workshop
+          if (order.workshopId) {
+            //get last event timestamp
+            const lastEventTimestamp = await getLastEventTimestamp(order.id);
+            //create time
+            await prisma.time.create({
+              data: {
+                orderId: order.id,
+                duration: new Date()-lastEventTimestamp,
+                workshopId: order.workshopId
+              },
+            });
+          }
           await prisma.rfid.update({
             where: { id: rfidId },
             data: {
@@ -493,7 +516,7 @@ app.post("/antennas/:id/rfids", async (req, res) => {
 
         }
       }
-      // Process exited RFIDs into Workshop
+      // Process exited RFIDs from EnCours
       if(exitedRfids.length > 0){
         for (const rfidId of exitedRfids) {
           const rfid = await prisma.rfid.findUnique({
@@ -522,6 +545,16 @@ app.post("/antennas/:id/rfids", async (req, res) => {
             where: { rfidOrderId: rfidorderId },
             data: {
               enCoursId: null,
+            },
+          });
+          //Get last event timestamp
+          const lastEventTimestamp = await getLastEventTimestamp(order.id);
+          //Create new time row with the time taken by the order in the en-cours
+          await prisma.time.create({
+            data: {
+              orderId: order.id,
+              duration: new Date()-lastEventTimestamp,
+              enCoursId: enCours.id
             },
           });
         }
