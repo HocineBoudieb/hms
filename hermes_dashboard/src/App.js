@@ -3,7 +3,7 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import Home from './pages/Home';
 import Tables from './pages/Tables';
-import Teams from './pages/Users';
+import Alerts from './pages/Alerts';
 import Settings from './pages/Settings';
 
 function App() {
@@ -15,7 +15,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/tables" element={<Tables />} />
-          <Route path="/teams" element={<Teams />} />
+          <Route path="/alerts" element={<Alerts />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </div>

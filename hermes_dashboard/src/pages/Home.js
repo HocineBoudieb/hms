@@ -35,6 +35,9 @@ const Home= () => {
     return (
         <div className="flex min-h-screen bg-[#f8f8f8] min-w-full">
             <div className='flex flex-col ml-64 mt-16'>
+
+                <h1 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] ml-8 mt-8">DISPLAY</h1>
+                <Display />
                 <h1 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] ml-8 mt-8">DASHBOARD SITE PARIS</h1>
                 <div className="flex flex-wrap gap-x-4 gap-y-4 p-8 min-w-full">
                     {/* StatCard */}  
@@ -42,8 +45,7 @@ const Home= () => {
                         <StatCard key={stat.id} title={stat.name} value={stat.value} Icon={icons[i]} iconColor={icon_colors[i]} />
                     ))}
                 </div>
-                <h1 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] ml-8">DISPLAY</h1>
-                <Display />
+                
             </div>
         </div>
     );

@@ -59,8 +59,9 @@ model Alert {
   id        Int       @id @default(autoincrement())
   orderId   Int
   type      Int
+  status    Int
   startDate DateTime
-  endDate   DateTime
+  endDate   DateTime?
   Order     Order     @relation(fields: [orderId], references: [id])
 }
 

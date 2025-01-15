@@ -1,7 +1,35 @@
 import React from 'react';
 import { Bell, Search, User } from 'lucide-react';
+import { useEffect,useState } from 'react';
 
 const Header = () => {
+  const [hasActiveAlerts, sethasActiveAlerts] = useState(false);
+  const [recentAlert, setRecentAlert] = useState();
+
+  useEffect(() => {
+    const fetchAlerts = async () => {
+        try {
+            const response = await axios.get('http://localhost:8081/alerts/active');
+            if(response){
+              sethasActiveAlerts(true);
+              setRecentAlert(response[0]);
+            }
+            else{
+              sethasActiveAlerts(false);
+            }
+        } catch (error) {
+            console.error('Failed to fetch stats:', error);
+        }
+    };
+
+    fetchAlerts();
+
+    //fetch every minute
+    const interval = setInterval(fetchAlerts, 60000);
+
+    //clear Timer when component unmount
+    return () => clearInterval(interval);
+  }, []);
   return (
     <header className="fixed top-0 left-64 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10">
       <div className="flex items-center gap-4">

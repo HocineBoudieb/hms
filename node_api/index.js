@@ -277,6 +277,20 @@ app.get("/alerts",async (req,res) => {
   }
 });
 
+//get active alerts
+app.get("/alerts/active",async (req,res) => {
+  try{
+      const alerts = await prisma.alert.findMany({
+        where: {
+          status: 1
+        }
+      });
+      res.json(alerts);
+  }catch (error) {
+      res.status(500).json({error: "Failed to fetch alerts"});
+  }
+});
+
 //Get all stats
 app.get("/stats", async (req, res) => {
   try {
@@ -334,7 +348,6 @@ app.post("/workshops", async (req, res) => {
 app.post("/antennas/:id/rfids", async (req, res) => {
   const { id } = req.params; // Antenna ID
   const { rfids, timestamp } = req.body; // Array of RFID IDs & Timestamp
-  console.log("received rfids",rfids, "from antenna", id);
 
   if(id === '0'){
     console.log("registering rfids");
@@ -392,19 +405,12 @@ app.post("/antennas/:id/rfids", async (req, res) => {
       const currentRfidsList = currentRfids.map(rfid => rfid.id);
       const enteredRfids = detectedRfids.filter(rfidId => !currentRfidsList.includes(rfidId));
       const exitedRfids = currentRfidsList.filter(rfidId => !detectedRfids.includes(rfidId));
-
-      //log the entered and exited rfids
-      console.log("current rfids", currentRfidsList);
-      console.log("entered rfids", enteredRfids);
-      console.log("exited rfids", exitedRfids);
-
-
-
+      
+    
       // Calculate changes
       // Process entered RFIDs into EnCours
       if(enteredRfids.length > 0){
         for (const rfidId of enteredRfids) {
-          console.log("rfidId", rfidId);
           //get rfid from rfidId
           const rfid = await prisma.rfid.findUnique({
             where: { id: rfidId },
@@ -445,7 +451,6 @@ app.post("/antennas/:id/rfids", async (req, res) => {
       }
       // Process exited RFIDs into Workshop
       if(exitedRfids.length > 0){
-        console.log("Processing exited rfids...");
         for (const rfidId of exitedRfids) {
           const rfid = await prisma.rfid.findUnique({
             where: { id: rfidId },
@@ -460,6 +465,13 @@ app.post("/antennas/:id/rfids", async (req, res) => {
               enCoursId: enCours.id,
               timestamp: new Date(timestamp),
               eventType: 0, // 0 for "quit"
+            },
+          });
+          await prisma.rfid.update({
+            where: { id: rfidId },
+            data: {
+              enCoursId: null,//Reset en-cours while exiting
+              workshopId: null,
             },
           });
           await prisma.order.update({
@@ -504,14 +516,12 @@ app.post("/orders", async (req, res) => {
         reference: rfidId,
       },
     });
-    console.log("rfid", rfid);
     const idrfid = rfid.id;
     const rfidorder = await prisma.rfidOrder.create({
       data: {
         status: 1, // 1 for "active"
         },
     });
-    console.log("rfidorder", rfidorder);
 
     const order = await prisma.order.create({
       data: {
@@ -530,7 +540,6 @@ app.post("/orders", async (req, res) => {
         rfidOrderId: rfidorder.id,
       },
     });
-    console.log("order", order);
     res.json(order);
   } catch (error) {
     res.status(500).json({ error: "Failed to create order." });
@@ -589,6 +598,14 @@ app.post("/supports", async (req, res) => {
         workshopId: Workshop.id,
       },
     });
+    await prisma.rfid.update({
+      where: {
+        id: rfid.id,
+      },
+      data: {
+        workshopId: Workshop.id,
+      }
+    })
     //Get artisan from artisan name
     const artisan_instance = await prisma.artisan.findFirst({
       where: {
@@ -613,14 +630,53 @@ app.post("/supports", async (req, res) => {
 
 
 //****************************************************************
-//CHECK FOR ANOMALIES (ALERTS)
+//ALERTS MANAGEMENT
 //****************************************************************
+
+//Create an alert
+async function createAlert(orderId, type) {
+  console.log("entered alert creation");
+  //if alert already exists for this order with the same type, do nothing
+  const existingAlert = await prisma.alert.findFirst({
+    where: {
+      orderId: orderId,
+      type: type,
+      status: 1,
+    },
+  });
+  if (existingAlert) {
+    console.log("Alert already exist");
+    return;
+  }
+  console.log("Creating Alert");
+  await prisma.alert.create({
+    data: {
+      orderId: orderId,
+      type: type,
+      status: 1,
+      startDate: new Date(),
+    },
+  });
+  console.log("Alert Created");
+}
+
+//Resolve an alert
+async function resolveAlert(alertId) {
+  await prisma.alert.update({
+    where: {
+      id: alertId,
+    },
+    data: {
+      status: 0,
+      endDate: new Date(),
+    },
+  });
+}
 
 async function checkForAnomalies() {
   //Check if an order is in an encours and in a workshop
   const orders = await prisma.order.findMany();
-  const anomalies = orders.filter(order => order.enCoursId && order.workshopId);
-
+  const ordersWithTwoLocationsAnomalies = orders.filter(order => order.enCoursId && order.workshopId);
 
   //Check if an order is not in an encours and not in a workshop for more than 10 seconds
   const now = new Date();
@@ -639,11 +695,51 @@ async function checkForAnomalies() {
     });
     const lastEvent = events[0];
     lastEvent_timestamp = new Date(lastEvent.timestamp);
+    console.log("last event timestamp", lastEvent_timestamp);
 
     if (lastEvent_timestamp < tenSecondsAgo) {
       ordersWithoutLocationAnomalies.push(order);
     }
   }
+  //Create alerts for the anomalies
+  for(const order of ordersWithTwoLocationsAnomalies){
+    createAlert(order.id, 1);
+  }
+  for(const order of ordersWithoutLocationAnomalies){
+    createAlert(order.id, 2);
+  }
+
+  //Check if Anomalies are resolved
+  const alerts = await prisma.alert.findMany({
+    where: {
+      status: 1,
+    },
+  });
+  const resolvedAlerts = [];
+  for(const alert of alerts){
+    const order = await prisma.order.findUnique({
+      where: {
+        id: alert.orderId,
+      },
+    });
+    //check type of alert
+    if(alert.type === 1){
+      //check if order is in an encours or in a workshop but not in both (exclusive or)
+      if((order.enCoursId && !order.workshopId) || (!order.enCoursId && order.workshopId)){
+        resolvedAlerts.push(alert.id);
+      }
+    }
+    else{
+      //check if order is in an encours or in a workshop
+      if(order.enCoursId || order.workshopId){
+        resolvedAlerts.push(alert.id);
+      }
+    }
+  }
+  for(const alertId of resolvedAlerts){
+    resolveAlert(alertId);
+  }
+
 }
 
 
