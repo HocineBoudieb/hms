@@ -32,7 +32,7 @@ const Home= () => {
     }, []);
 
     //const iconss = [Users, ErrorOutlineIcon, ContentCutIcon, ContentCutIcon, ErrorOutlineIcon, ErrorOutlineIcon];
-    const icons = [Pen,Pen,Pen,Pen,Pen,Pen];
+    //const icons = [Pen,Pen,Pen,Pen,Pen,Pen];
     const icon_colors = ['#FF5733', '#FF8D1A', '#FFC300', '#FAF7A6', '#33FFBD', '#33FFBD'];
     return (
         <div className="flex min-h-screen bg-[#f8f8f8] min-w-full">
@@ -44,7 +44,7 @@ const Home= () => {
                 <div className="flex flex-wrap gap-x-4 gap-y-4 p-8 min-w-full">
                     {/* StatCard */}  
                     {stats.map((stat,i) => (
-                        <StatCard key={stat.id} title={stat.name} value={stat.value} percentageChange={stat.change} Icon={icons[i]} iconColor={icon_colors[i]} unit={stat.unit} />
+                        <StatCard key={stat.id} title={stat.name} value={stat.value} percentageChange={stat.change} Icon={null} iconColor={icon_colors[i]} unit={stat.unit} />
                     ))}
                 </div>
                 

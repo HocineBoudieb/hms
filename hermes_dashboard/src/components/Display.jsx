@@ -81,7 +81,7 @@ const Display = () => {
                 const encoursItem = encours.find((item) => item.id === workshop.EnCours.id);
 
                 return (
-                    <div className="flex flex-col items-center w-1/3" key={workshop.id}>
+                    <div className="flex flex-col items-center w-1/4" key={workshop.id}>
                         <p className="text-1xl first-letter:text-2xl font-thin tracking-[0.1em] ml-8">{workshop.name}</p>
                         <div className="relative w-full flex flex-row items-center">
                             {/* First Image (EnCours) */}

@@ -1,3 +1,5 @@
+// FILE: node_api/index.js
+
 const express = require("express");
 const cors = require("cors");
 const { PrismaClient } = require("@prisma/client");
@@ -8,6 +10,8 @@ const port = 8081;
 
 app.use(express.json());
 app.use(cors());
+
+
 // Helper functions
 
 /**
@@ -124,6 +128,9 @@ app.get("/workshops", async (req, res) => {
       include: {
         EnCours: true,
         Order: true,
+      },
+      orderBy: {
+        name: "asc",
       },
     });
     res.json(workshops);
