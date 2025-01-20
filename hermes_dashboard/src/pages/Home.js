@@ -3,7 +3,7 @@ import StatCard from '../components/StatCard';
 import Display from '../components/Display';
 //import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 //import ContentCutIcon from '@mui/icons-material/ContentCut';
-import {Pen} from 'lucide-react';
+//import {Pen} from 'lucide-react';
 //import {Users} from 'lucide-react';
 import { useEffect,useState } from 'react';
 import axios from 'axios';
@@ -44,7 +44,17 @@ const Home= () => {
                 <div className="flex flex-wrap gap-x-4 gap-y-4 p-8 min-w-full">
                     {/* StatCard */}  
                     {stats.map((stat,i) => (
-                        <StatCard key={stat.id} title={stat.name} value={stat.value} percentageChange={stat.change} Icon={null} iconColor={icon_colors[i]} unit={stat.unit} />
+                        <StatCard 
+                            key={stat.id} 
+                            title={stat.name} 
+                            value={stat.value} 
+                            percentageChange={stat.change} 
+                            Icon={null} 
+                            isIncrease={stat.isUp}
+                            iconColor={icon_colors[i]} 
+                            unit={stat.unit} 
+                            color={stat.value === 0 ? 'black' : (stat.isUp ? (stat.right ? 'green' : 'red') : (stat.right ? 'red' : 'green'))} 
+                        />
                     ))}
                 </div>
                 

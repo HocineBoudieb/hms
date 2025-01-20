@@ -109,6 +109,8 @@ model Stats {
   value     Decimal
   unit      String
   change    Int
+  isUp      Boolean?
+  right     Boolean?
   lastTime  DateTime
 }
 
