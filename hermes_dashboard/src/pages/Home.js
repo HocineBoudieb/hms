@@ -7,7 +7,6 @@ import ContentCutIcon from '@mui/icons-material/ContentCut';
 //import {Users} from 'lucide-react';
 import { useEffect,useState } from 'react';
 import axios from 'axios';
-import { icons } from 'lucide-react';
 
 
 const Home= () => {
