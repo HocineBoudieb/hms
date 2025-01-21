@@ -4,10 +4,10 @@ import { LayoutDashboard , Settings, Siren, Table  } from 'lucide-react';
 import ImageFile from '../assets/logo.png';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: Table , label: 'All Tables', path: '/tables' },
-  { icon: Siren, label: 'Alerts', path: '/alerts' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: LayoutDashboard, label: 'Accueil', path: '/' },
+  { icon: Table , label: 'Toutes les tables', path: '/tables' },
+  { icon: Siren, label: 'Alertes', path: '/alerts' },
+  { icon: Settings, label: 'Parametres', path: '/settings' },
 ];
 
 const Sidebar = () => {

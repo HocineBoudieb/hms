@@ -2,11 +2,12 @@
 import StatCard from '../components/StatCard';
 import Display from '../components/Display';
 //import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
-//import ContentCutIcon from '@mui/icons-material/ContentCut';
+import ContentCutIcon from '@mui/icons-material/ContentCut';
 //import {Pen} from 'lucide-react';
 //import {Users} from 'lucide-react';
 import { useEffect,useState } from 'react';
 import axios from 'axios';
+import { icons } from 'lucide-react';
 
 
 const Home= () => {
@@ -32,15 +33,15 @@ const Home= () => {
     }, []);
 
     //const iconss = [Users, ErrorOutlineIcon, ContentCutIcon, ContentCutIcon, ErrorOutlineIcon, ErrorOutlineIcon];
-    //const icons = [Pen,Pen,Pen,Pen,Pen,Pen];
+    const icons = [ContentCutIcon];
     const icon_colors = ['#FF5733', '#FF8D1A', '#FFC300', '#FAF7A6', '#33FFBD', '#33FFBD'];
     return (
         <div className="flex min-h-screen bg-[#f8f8f8] min-w-full">
             <div className='flex flex-col ml-64 mt-16'>
 
-                <h1 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] ml-8 mt-8">DISPLAY</h1>
+                <h1 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] ml-8 mt-8">Visualisation</h1>
                 <Display />
-                <h1 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] ml-8 mt-8">DASHBOARD SITE PARIS</h1>
+                <h1 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] ml-8 mt-8">TABLEAU DE BORD SITE PARIS</h1>
                 <div className="flex flex-wrap gap-x-4 gap-y-4 p-8 min-w-full">
                     {/* StatCard */}  
                     {stats.map((stat,i) => (
@@ -49,7 +50,7 @@ const Home= () => {
                             title={stat.name} 
                             value={stat.value} 
                             percentageChange={stat.change} 
-                            Icon={null} 
+                            Icon={icons[i]} 
                             isIncrease={stat.isUp}
                             iconColor={icon_colors[i]} 
                             unit={stat.unit} 

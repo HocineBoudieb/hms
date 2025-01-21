@@ -130,7 +130,7 @@ app.get("/workshops", async (req, res) => {
         Order: true,
       },
       orderBy: {
-        name: "asc",
+        id: "asc",
       },
     });
     res.json(workshops);
@@ -912,24 +912,30 @@ async function update_Stats(){
   });
   
   const current_total_time_in_workshop_value = parseInt(current_total_time_in_workshop.value, 10);
-  //calculate the difference in percentage
-  const difference_workshop = current_total_time_in_workshop_value === 0 ? 0 : Math.abs(((parseInt(timestampToBestUnit(total_time_in_workshop), 10) - current_total_time_in_workshop_value) / current_total_time_in_workshop_value) * 100);
   value_unit = timestampToBestUnit(total_time_in_workshop);
-  //update the stat table
-  await prisma.stats.update({
-    where: {
-      id: 1,
-    },
-    data: {
-      value: parseInt(value_unit, 10),
-      change: difference_workshop,
-      unit: value_unit.split(' ')[1]
-    },
-  });
+
+  if(current_total_time_in_workshop.value !== parseInt(value_unit, 10))
+  {
+      
+    //calculate the difference in percentage
+    const difference_workshop = current_total_time_in_workshop_value === 0 ? 0 : Math.abs(((parseInt(timestampToBestUnit(total_time_in_workshop), 10) - current_total_time_in_workshop_value) / current_total_time_in_workshop_value) * 100);
+    
+    //update the stat table
+    await prisma.stats.update({
+      where: {
+        id: 1,
+      },
+      data: {
+        value: parseInt(value_unit, 10),
+        change: difference_workshop,
+        unit: value_unit.split(' ')[1]
+      },
+    });
+  }
 }
 
 
-setInterval(update_Stats, 60000);
+setInterval(update_Stats, 5000);
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);

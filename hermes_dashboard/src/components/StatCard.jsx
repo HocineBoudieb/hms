@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Typography, Box } from '@mui/material';
 import tinycolor from 'tinycolor2';
 
-const StatCard = ({ title, value, percentageChange, isIncrease, Icon, iconColor = '#7D0000',unit='h', color }) => {
+const StatCard = ({ title, value, percentageChange, isIncrease, Icon, iconColor = '#FAF7A6',unit='h', color }) => {
     return (
         <Card elevation={0} sx={{ borderRadius: 2, padding: 1.5, display: 'flex', flexDirection: 'column', gap: 1, width: '23%' , height: 140 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -20,8 +20,8 @@ const StatCard = ({ title, value, percentageChange, isIncrease, Icon, iconColor 
                 <Typography variant="body2" sx={{ color: percentageChange ? color : '#ffa500', fontWeight: 'bold' }}>
                     {percentageChange === 0 ? '➤' : isIncrease ? '▲' : '▼'} {percentageChange !== 0 ? percentageChange + '%' : ''}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                    from yesterday
+                <Typography className='ml-2' variant="body4" color="text.secondary">
+                    {percentageChange === 0 ? 'No change' : 'since last month'}
                 </Typography>
             </Box>
         </Card>
