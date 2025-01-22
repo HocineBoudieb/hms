@@ -21,7 +21,7 @@ model Rfid {
   enCoursId   Int?
   workshopId  Int?
   rfidOrderId Int?       @unique
-  reference   Int
+  reference   String     @unique
   RfidOrder   RfidOrder? @relation(fields: [rfidOrderId], references: [id])
 }
 

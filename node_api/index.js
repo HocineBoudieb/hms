@@ -390,7 +390,7 @@ app.post("/workshops", async (req, res) => {
 app.post("/antennas/:id/rfids", async (req, res) => {
   const { id } = req.params; // Antenna ID
   const { rfids, timestamp } = req.body; // Array of RFID IDs & Timestamp
-
+  console.log("received from antenna", id,"rfids:", rfids,"timestamp:", timestamp);
   if(id === '0'){
     console.log("registering rfids");
     try {
@@ -399,7 +399,7 @@ app.post("/antennas/:id/rfids", async (req, res) => {
             reference: rfid,
           } }))
       );
-      res.json(createdRfids);
+      res.status(200).json(createdRfids);
     } catch (error) {
       res.status(500).json({ error: "Failed to register RFIDs." });
     }

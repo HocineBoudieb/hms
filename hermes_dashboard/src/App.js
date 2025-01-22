@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Tables from './pages/Tables';
 import Alerts from './pages/Alerts';
 import Settings from './pages/Settings';
+import Workshop from './pages/Workshop';
 
 function App() {
   return (
