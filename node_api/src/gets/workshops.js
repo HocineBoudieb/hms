@@ -1,5 +1,21 @@
 // File: src/gets/workshops.js
-app.get("/workshops", async (req, res) => {
+
+/**
+ * Configures and sets up API endpoints for retrieving and managing workshops and associated orders.
+ *
+ * This module exports a function that accepts a Prisma client as a parameter and defines several
+ * HTTP GET routes using the provided Express app instance. The routes retrieve data related to
+ * workshops, orders, and associated EnCours, RfidOrder, Alert, and Support records, based on the
+ * @param {Object} prisma - The Prisma client used for database operations.
+ *
+ * Routes:
+ * - GET /workshops: Fetches all workshops from the database, including associated EnCours and orders.
+ * - GET /workshops/:id: Fetches a specific workshop by ID, including associated EnCours records.
+ * - GET /workshops/:id/orders: Retrieves all orders associated with a specific workshop ID, including
+ *   details such as RfidOrder, Alert, Support, and calculates the duration since the last event.
+ */
+export default (prisma) => {
+  app.get("/workshops", async (req, res) => {
     try {
       const workshops = await prisma.workshop.findMany({
         include: {
@@ -15,7 +31,7 @@ app.get("/workshops", async (req, res) => {
       res.status(500).json({ error: "Failed to fetch workshops." });
     }
   });
-  // workshop x endpoint
+  
   app.get("/workshops/:id", async (req, res) => {
     try {
       const { id } = req.params;
@@ -32,7 +48,7 @@ app.get("/workshops", async (req, res) => {
       res.status(500).json({ error: "Failed to fetch workshop." });
     }
   });
-  //Get orders by workshop
+  
   app.get("/workshops/:id/orders", async (req, res) => {
     try {
       const { id } = req.params;
@@ -56,10 +72,11 @@ app.get("/workshops", async (req, res) => {
           };
         })
       );
-      
+
       console.log(ordersWithDurationSinceLastEvent);
       res.json(ordersWithDurationSinceLastEvent);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch orders." });
     }
   });
+};

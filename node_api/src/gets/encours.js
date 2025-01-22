@@ -17,7 +17,7 @@
  * @param {Object} prisma - The Prisma client used for database operations.
  */
 
-module.exports = (prisma) => {
+export default  (prisma) => {
   // Get all Antennas
   app.get("/antennas", async (req, res) => {
     try {

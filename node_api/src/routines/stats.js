@@ -76,8 +76,7 @@
     value_unit = timestampToBestUnit(total_time_in_workshop);
   
     if(current_total_time_in_workshop.value !== parseInt(value_unit, 10))
-    {
-        
+    { 
       //calculate the difference in percentage
       const difference_workshop = current_total_time_in_workshop_value === 0 ? 0 : Math.abs(((parseInt(timestampToBestUnit(total_time_in_workshop), 10) - current_total_time_in_workshop_value) / current_total_time_in_workshop_value) * 100);
       
