@@ -17,6 +17,7 @@ function App() {
           <Route path="/tables" element={<Tables />} />
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/:workshopId" element={<Workshop />} />
         </Routes>
       </div>
     </div>
