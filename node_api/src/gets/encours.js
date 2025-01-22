@@ -1,5 +1,25 @@
 //File: gets/encours.js
-app.get("/antennas", async (req, res) => {
+
+/**
+ * Configures and sets up API endpoints for retrieving and managing antennas and EnCours data.
+ * 
+ * This module exports a function that accepts a Prisma client as a parameter and defines several
+ * HTTP GET routes using the provided Express app instance. The routes retrieve data related to
+ * antennas, EnCours, and associated orders, based on the Prisma client queries.
+ * 
+ * Routes:
+ * - GET /antennas: Fetches all antennas from the database.
+ * - GET /encours: Retrieves all EnCours records, including associated Antenna and Order data.
+ * - GET /encours/:id: Fetches a specific EnCours record by ID, including related Antenna and Rfid data.
+ * - GET /encours/:id/orders: Retrieves all orders associated with a specific EnCours ID, including details
+ *   such as RfidOrder, Alert, Support, and calculates the duration since the last event.
+ * 
+ * @param {Object} prisma - The Prisma client used for database operations.
+ */
+
+module.exports = (prisma) => {
+  // Get all Antennas
+  app.get("/antennas", async (req, res) => {
     try {
       const antennas = await prisma.antenna.findMany();
       res.json(antennas);
@@ -71,4 +91,5 @@ app.get("/antennas", async (req, res) => {
       res.status(500).json({ error: "Failed to fetch orders." });
     }
   });
-  
+};
+

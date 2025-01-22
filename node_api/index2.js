@@ -17,11 +17,11 @@ const rfids_posts = require("./src/posts/rfids");
 const workshops_posts = require("./src/posts/workshops");
 
 
-app.use("/encours", encours_gets);
-app.use("/workshops", workshops_gets);
-app.use("/orders", orders_posts);
-app.use("/rfids", rfids_posts);
-app.use("/workshops", workshops_posts);
+app.use("/encours", encours_gets(prisma));
+app.use("/workshops", workshops_gets(prisma));
+app.use("/orders", orders_posts(prisma));
+app.use("/rfids", rfids_posts(prisma));
+app.use("/workshops", workshops_posts(prisma));
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
