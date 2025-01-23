@@ -32,6 +32,7 @@ export const getWorkshopById = (prisma) => async (req, res) => {
       },
       include: {
         EnCours: true,
+        Order: true,
       },
     });
     res.json(workshop);

@@ -23,11 +23,24 @@ export const getAllOrders = (prisma) => async (req, res) => {
   }
 };
 
+/**
+ * @description Creates a new order and associated RFID order in the database.
+ * @param {Object} prisma - The Prisma client instance for database access.
+ * @param {Object} req - The request object containing order details.
+ * @param {Object} res - The response object to send the result of the operation.
+ * @param {String} req.body.rfidId - The RFID reference for the order.
+ * @param {String} req.body.startDate - The start date of the order.
+ * @param {String} req.body.endDate - The end date of the order.
+ * @param {Number} req.body.status - The status of the order.
+ * @param {Number} req.body.enCoursId - The EnCours ID associated with the order.
+ * @param {Number} req.body.workshopId - The Workshop ID associated with the order.
+ * @returns {Object} The created order object.
+ */
 export const createOrder = (prisma) => async (req, res) => {
   try {
-    const { rfidId, startDate, endDate, status, enCoursId, workshopId } = req.body;
+    const { trolley, startDate, endDate, status, enCoursId, workshopId } = req.body;
     const rfid = await prisma.rfid.findFirst({
-      where: { reference: rfidId },
+      where: { trolley: trolley },
     });
     const idrfid = rfid.id;
     const rfidorder = await prisma.rfidOrder.create({

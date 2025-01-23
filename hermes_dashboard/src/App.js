@@ -11,7 +11,7 @@ function App() {
   return (
     <div className="flex min-h-screen bg-[#f8f8f8] min-w-full">
       <Routes>
-        <Route path="/:workshopId" element={<Workshop />} />
+        <Route path="/:workshopId" element={<Workshop/>} />
         <Route
           path="*"
           element={

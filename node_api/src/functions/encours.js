@@ -15,7 +15,7 @@ export const getEnCours = (prisma) => async (req, res) => {
 export const getEnCoursById = (prisma) => async (req, res) => {
   try {
     const { id } = req.params;
-    const encours = await prisma.enCours.findMany({
+    const encours = await prisma.enCours.findUnique({
       where: {
         id: parseInt(id),
       },
