@@ -10,19 +10,29 @@ import Workshop from './pages/Workshop';
 function App() {
   return (
     <div className="flex min-h-screen bg-[#f8f8f8] min-w-full">
-      <Sidebar />
-      <div className="flex flex-col w-full">
-        <Header />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/tables" element={<Tables />} />
-          <Route path="/alerts" element={<Alerts />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/:workshopId" element={<Workshop />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/:workshopId" element={<Workshop />} />
+        <Route
+          path="*"
+          element={
+            <div className="flex w-full">
+              <Sidebar />
+              <div className="flex flex-col w-full">
+                <Header />
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/tables" element={<Tables />} />
+                  <Route path="/alerts" element={<Alerts />} />
+                  <Route path="/settings" element={<Settings />} />
+                </Routes>
+              </div>
+            </div>
+          }
+        />
+      </Routes>
     </div>
   );
 }
 
 export default App;
+

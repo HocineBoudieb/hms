@@ -56,7 +56,9 @@ model Order {
 model Artisan {
   id      Int       @id @default(autoincrement())
   name    String
+  workshopId  Int?
   nfcId   String?
+  Worshop Workshop? @relation(fields: [workshopId], references: [id])
   Support Support[]
 }
 
@@ -86,6 +88,7 @@ model Workshop {
   Support   Support[]
   Time      Time[]
   Activity  Activity[]
+  Artisan   Artisan[]
 }
 
 model Support {
