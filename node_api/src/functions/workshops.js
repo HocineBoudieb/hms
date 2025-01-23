@@ -2,11 +2,19 @@ export const getWorkshops = (prisma) => async (req, res) => {
   try {
     const workshops = await prisma.workshop.findMany({
       include: {
-        EnCours: true,
+        EnCours: {
+          include: {
+            Antenna: true,
+          },
+        },
         Order: true,
       },
       orderBy: {
-        name: "asc",
+        EnCours: {
+          Antenna: {
+            reference: "asc",
+          },
+        },
       },
     });
     res.json(workshops);
