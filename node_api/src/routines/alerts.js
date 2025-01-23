@@ -8,7 +8,7 @@
  * @param {number} orderId The order ID.
  * @param {number} type The type of the alert.
  */
-async function createAlert(orderId, type) {
+async function createAlert(orderId, type,prisma) {
     console.log("entered alert creation");
     //if alert already exists for this order with the same type, do nothing
     const existingAlert = await prisma.alert.findFirst({
@@ -39,7 +39,7 @@ async function createAlert(orderId, type) {
    * timestamp.
    * @param {number} alertId The ID of the alert to resolve.
    */
-  async function resolveAlert(alertId) {
+async function resolveAlert(alertId,prisma) {
     await prisma.alert.update({
       where: {
         id: alertId,
@@ -58,7 +58,7 @@ async function createAlert(orderId, type) {
    * - An order is not in an encours and not in a workshop for more than 10 seconds
    * Also, check if the anomalies are resolved and close the corresponding alerts
    */
-  async function checkForAnomalies() {
+export async function checkForAnomalies(prisma) {
     //Check if an order is in an encours and in a workshop
     const orders = await prisma.order.findMany();
     const ordersWithTwoLocationsAnomalies = orders.filter(order => order.enCoursId && order.workshopId);
@@ -88,10 +88,10 @@ async function createAlert(orderId, type) {
     }
     //Create alerts for the anomalies
     for(const order of ordersWithTwoLocationsAnomalies){
-      createAlert(order.id, 1);
+      createAlert(order.id, 1,prisma);
     }
     for(const order of ordersWithoutLocationAnomalies){
-      createAlert(order.id, 2);
+      createAlert(order.id, 2,prisma);
     }
   
     //Check if Anomalies are resolved
@@ -122,7 +122,7 @@ async function createAlert(orderId, type) {
       }
     }
     for(const alertId of resolvedAlerts){
-      resolveAlert(alertId);
+      resolveAlert(alertId,prisma);
     }
   
   }
