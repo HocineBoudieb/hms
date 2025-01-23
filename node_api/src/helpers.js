@@ -6,7 +6,7 @@
  * @param {number} orderId - The id of the order
  * @returns {number} The timestamp of the last event
  */
-async function getLastEventTimestamp(orderId,prisma) {
+export async function getLastEventTimestamp(orderId,prisma) {
     const lastEvent = await prisma.event.findMany({
       where: {
         orderId: orderId,
@@ -23,7 +23,7 @@ async function getLastEventTimestamp(orderId,prisma) {
    * @param {number} lastEventTimestamp - The timestamp from which to calculate the difference
    * @returns {number} The time difference in minutes
    */
-  async function calculateMinutesDifference(lastEventTimestamp) {
+export async function calculateMinutesDifference(lastEventTimestamp) {
     const now = new Date();
     const diffTime = Math.abs(now - lastEventTimestamp);
     const res = Math.ceil(diffTime / (1000 * 60));
@@ -37,7 +37,7 @@ async function getLastEventTimestamp(orderId,prisma) {
    * @param {number} timestamp - The timestamp to convert
    * @returns {string} The time difference in minutes or hours
    */
-  function timestampToBestUnit(timestamp) {
+export function timestampToBestUnit(timestamp) {
     const diffTime = timestamp
     const diffMinutes = Math.ceil(diffTime / (1000 * 60));
     const diffHours = Math.ceil(diffTime / (1000 * 60 * 60));

@@ -1,4 +1,4 @@
-const getArtisansWithStats = async (res) => {
+export const getArtisansWithStats = (prisma) => async (req, res) => {
   try {
     const artisans = await prisma.artisan.findMany({
       include: {

@@ -1,8 +1,9 @@
-export const getAllStats = async (prisma) => {
+export const getAllStats = (prisma) => async (req, res) => {
   try {
     const stats = await prisma.stats.findMany();
-    return stats;
+    res.json(stats);
   } catch (error) {
-    throw error;
+    res.status(500).json({ error: "Failed to fetch stats." });
   }
 };
+

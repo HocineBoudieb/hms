@@ -1,4 +1,4 @@
-export const getOrders = async (req, res) => {
+export const getAllOrders = (prisma) => async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
       include: {
@@ -23,7 +23,7 @@ export const getOrders = async (req, res) => {
   }
 };
 
-export const createOrder = async (req, res) => {
+export const createOrder = (prisma) => async (req, res) => {
   try {
     const { rfidId, startDate, endDate, status, enCoursId, workshopId } = req.body;
     const rfid = await prisma.rfid.findFirst({
@@ -55,5 +55,20 @@ export const createOrder = async (req, res) => {
   }
 };
 
-app.get("/orders", getOrders);
-app.post("/orders", createOrder);
+export const getLastEventForOrder = (prisma) => async (req, res) => {
+  try {
+    const { id } = req.params;
+    const events = await prisma.event.findMany({
+      where: {
+        orderId: parseInt(id),
+      },
+      orderBy: {
+        timestamp: 'desc',
+      },
+    });
+    res.json(events[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch last event." });
+  }
+};
+  
