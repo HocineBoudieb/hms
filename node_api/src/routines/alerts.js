@@ -59,8 +59,13 @@ async function resolveAlert(alertId,prisma) {
    * Also, check if the anomalies are resolved and close the corresponding alerts
    */
 export async function checkForAnomalies(prisma) {
-    //Check if an order is in an encours and in a workshop
-    const orders = await prisma.order.findMany();
+    //Check if an active order is in an encours and in a workshop
+    const orders = await prisma.order.findMany(
+      {
+        where: {
+          status: 1,
+        }
+      });
     const ordersWithTwoLocationsAnomalies = orders.filter(order => order.enCoursId && order.workshopId);
   
     //Check if an order is not in an encours and not in a workshop for more than 10 seconds

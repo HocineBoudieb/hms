@@ -1,3 +1,9 @@
+/**
+ * Retrieves all orders from the database, including associated RfidOrder, Alert, and Support records,
+ * and calculates the duration since the last event for each order.
+ * @param {Object} prisma - The Prisma client used for database operations.
+ * @returns {Promise<void>}
+ */
 export const getAllOrders = (prisma) => async (req, res) => {
   try {
     const orders = await prisma.order.findMany({
@@ -38,35 +44,27 @@ export const getAllOrders = (prisma) => async (req, res) => {
  */
 export const createOrder = (prisma) => async (req, res) => {
   try {
-    const { trolley, startDate, endDate, status, enCoursId, workshopId } = req.body;
-    const rfid = await prisma.rfid.findFirst({
-      where: { trolley: trolley },
-    });
-    const idrfid = rfid.id;
-    const rfidorder = await prisma.rfidOrder.create({
-      data: { status: 1 },
-    });
-
+    const { productId } = req.body;
     const order = await prisma.order.create({
       data: {
-        status: 1,
-        startDate: new Date(startDate),
-        endDate: null,
-        enCoursId: 22,
-        workshopId: null,
-        rfidOrderId: rfidorder.id,
+        startDate: new Date(),
+        productId: productId,
+        status: 0,
       },
     });
-
-    await prisma.rfid.update({
-      where: { id: idrfid },
-      data: { rfidOrderId: rfidorder.id },
-    });
-    res.json(order);
+    res.status(200).json(order);
   } catch (error) {
     res.status(500).json({ error: "Failed to create order." });
   }
 };
+
+/**
+ * @description Fetches the last event for a specified order by order ID.
+ * @param {Object} prisma - The Prisma client instance for database access.
+ * @param {Object} req - The request object containing the order ID in params.
+ * @param {Object} res - The response object to send the result of the operation.
+ * @returns {Object} The last event object for the given order.
+ */
 
 export const getLastEventForOrder = (prisma) => async (req, res) => {
   try {
@@ -85,3 +83,68 @@ export const getLastEventForOrder = (prisma) => async (req, res) => {
   }
 };
   
+/**
+ * @description Assign an order to a given RFID.
+ * @param {Number} req.body.orderId - The order ID to assign to the RFID.
+ * @param {String} req.body.trolley - The trolley number associated with the RFID.
+ * @returns {Object} The updated order object.
+ */
+export const assignOrderToRfid = (prisma) => async (req, res) => {
+  try {
+    const { orderId, trolley} = req.body;
+    const rfid = await prisma.rfid.findFirst({
+      where: { trolley: trolley },
+    });
+    const rfidorderId = await prisma.rfidOrderId.create({
+      data: {
+        status: 1, // 1 for "active"
+        rfidId: rfid.id
+      },
+    })
+    const order = await prisma.order.update({
+      where: { id: parseInt(orderId) },
+      data: { 
+        status:1,
+        rfidOrderId: rfidorderId.id
+      },
+    });
+
+    await prisma.rfid.update({
+      where: { id: rfid.id },
+      data: { rfidOrderId: order.rfidOrderId },
+    });
+    
+    res.status(200).res.json(order);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to assign order to RFID." });
+  }
+};
+
+/**
+ * @description Creates a sample order with default values.
+ * @param {Object} prisma - The Prisma client instance for database access.
+ * @returns {Object} The created sample order object.
+ */
+export const createSampleOrder = (prisma) => async (req, res) => {
+  try {
+    console.log("Entered createSampleOrder");
+    const { productId } = req.body;
+    const sampleOrderData = {
+      startDate: new Date(),
+      endDate: null,
+      status: 0, // Default status
+      enCoursId: null,
+      workshopId: null,
+      productId: productId,
+    };
+
+    const order = await prisma.order.create({
+      data: sampleOrderData,
+    });
+
+    res.status(200).json(order);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create sample order." });
+  }
+};
+

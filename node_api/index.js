@@ -5,7 +5,7 @@
 import { getAntennas } from "./src/functions/antennas.js";
 import { getEnCours, getEnCoursById, getOrdersByEnCoursId } from "./src/functions/encours.js";
 import { getWorkshops, getWorkshopById, getOrdersByWorkshopId, createWorkshop } from "./src/functions/workshops.js";
-import { getAllOrders,getLastEventForOrder, createOrder } from "./src/functions/orders.js";
+import { getAllOrders,getLastEventForOrder, createOrder, assignOrderToRfid, createSampleOrder } from "./src/functions/orders.js";
 import { getArtisansWithStats } from "./src/functions/artisans.js";
 import { getAllEvents } from "./src/functions/events.js";
 import { getAllRfids, processRfidDetection } from "./src/functions/rfids.js";
@@ -52,9 +52,14 @@ app.get("/time", getAllTimeEntries(prisma));
 app.post("/workshops", createWorkshop(prisma));
 app.post("/antennas/:id/rfids", processRfidDetection(prisma));
 app.post("/orders", createOrder(prisma));
+app.post("/orders/assign", assignOrderToRfid(prisma));
 app.post("/supports", createSupport(prisma));
 
+app.post("/sample", createSampleOrder(prisma));
+
 setInterval(() => checkForAnomalies(prisma), 5000);
+
+
 //***************SERVER***************
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
