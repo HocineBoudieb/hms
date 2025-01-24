@@ -96,6 +96,22 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
 
             //check if the order is in a workshop
             if (order.workshopId) {
+            //Put last support endate to now
+            const support = await prisma.support.findFirst({
+                where: {
+                orderId: order.id,
+                },
+                orderBy: {
+                startdate: 'desc',
+                },
+            });
+            const supportId = support[0].id;
+            await prisma.support.update({
+                where: { id: supportId },
+                data: {
+                enddate: new Date(timestamp),
+                },
+            })
             //get last event timestamp
             const lastEventTimestamp = await getLastEventTimestamp(order.id);
             //create time
@@ -128,6 +144,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
             await prisma.order.update({
             where: { rfidOrderId: rfidorderid },
             data: {
+                status: 1,
                 enCoursId: enCours.id,
                 workshopId: null,
             },
@@ -137,47 +154,59 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
         }
         // Process exited RFIDs from EnCours
         if(exitedRfids.length > 0){
-        for (const rfidId of exitedRfids) {
-            const rfid = await prisma.rfid.findUnique({
-            where: { id: rfidId },
-            });
-            const rfidorderId = rfid.rfidOrderId;
-            const order = await prisma.order.findUnique({
-            where: { rfidOrderId: rfidorderId },
-            });
-            //Get last event timestamp
-            const lastEventTimestamp = await getLastEventTimestamp(order.id);
-            //Create new time row with the time taken by the order in the en-cours
-            await prisma.time.create({
-            data: {
-                orderId: order.id,
-                duration: new Date()-lastEventTimestamp.getTime(),
-                enCoursId: enCours.id
-            },
-            });
-            await prisma.event.create({
-            data: {
-                orderId: order.id,
-                enCoursId: enCours.id,
-                timestamp: new Date(timestamp),
-                eventType: 0, // 0 for "quit"
-            },
-            });
-            await prisma.rfid.update({
-            where: { id: rfidId },
-            data: {
-                enCoursId: null,//Reset en-cours while exiting
-                workshopId: null,
-            },
-            });
-            await prisma.order.update({
-            where: { rfidOrderId: rfidorderId },
-            data: {
-                enCoursId: null,
-            },
-            });
-            
-        }
+            for (const rfidId of exitedRfids) {
+                const rfid = await prisma.rfid.findUnique({
+                where: { id: rfidId },
+                });
+                const rfidorderId = rfid.rfidOrderId;
+                const order = await prisma.order.findUnique({
+                where: { rfidOrderId: rfidorderId },
+                });
+                //Get last event timestamp
+                const lastEventTimestamp = await getLastEventTimestamp(order.id);
+                //Create new time row with the time taken by the order in the en-cours
+                await prisma.time.create({
+                data: {
+                    orderId: order.id,
+                    duration: new Date()-lastEventTimestamp.getTime(),
+                    enCoursId: enCours.id
+                },
+                });
+                await prisma.event.create({
+                data: {
+                    orderId: order.id,
+                    enCoursId: enCours.id,
+                    timestamp: new Date(timestamp),
+                    eventType: 0, // 0 for "quit"
+                },
+                });
+                await prisma.rfid.update({
+                where: { id: rfidId },
+                data: {
+                    enCoursId: null,//Reset en-cours while exiting
+                    workshopId: null,
+                },
+                });
+                //if len of encours.Workshop is 0 so this is the last antenna, mark the order as done
+                if(enCours.Workshop.length == 0){
+                    await prisma.order.update({
+                    where: { rfidOrderId: rfidorderId },
+                    data: {
+                        status: 2,
+                    },
+                    });
+                    
+                }
+                else{
+                    await prisma.order.update({
+                    where: { rfidOrderId: rfidorderId },
+                    data: {
+                        enCoursId: null,
+                    },
+                    });
+                }
+                
+            }
         }
         res.json({
         message: "RFID detection processed successfully.",
@@ -190,3 +219,30 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
     }
     }
 }
+
+/**
+ * Retrieves all RFIDs with a trolley number and without an associated RFID Order.
+ * @param {Object} prisma - The Prisma client used for database operations.
+ * @returns {Promise<void>}
+ */
+export const getTrolleysRfids = (prisma) => async (req, res) => {
+    try {
+      const rfids = await prisma.rfid.findMany(
+        {
+          where: {
+            trolley: {
+              not: null,
+            },
+            rfidOrderId: null,
+          },
+        }
+      );
+      const data = rfids.map((rfid) => ({
+        id: rfid.id,
+        trolley: rfid.trolley,
+      }));
+      res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch rfids." });
+    }
+  };

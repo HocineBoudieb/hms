@@ -8,7 +8,7 @@ import { getWorkshops, getWorkshopById, getOrdersByWorkshopId, createWorkshop } 
 import { getAllOrders,getLastEventForOrder, createOrder, assignOrderToRfid, createSampleOrder } from "./src/functions/orders.js";
 import { getArtisansWithStats } from "./src/functions/artisans.js";
 import { getAllEvents } from "./src/functions/events.js";
-import { getAllRfids, processRfidDetection } from "./src/functions/rfids.js";
+import { getAllRfids, processRfidDetection, getTrolleysRfids } from "./src/functions/rfids.js";
 import { getAllSupports, createSupport } from "./src/functions/supports.js";
 import { getAllAlerts, getActiveAlerts } from "./src/functions/alerts.js";
 import { getAllStats } from "./src/functions/stats.js";
@@ -43,6 +43,7 @@ app.get("/artisans", getArtisansWithStats(prisma));
 app.get("/events", getAllEvents(prisma));
 app.get("/orders/:id/last-event", getLastEventForOrder(prisma));
 app.get("/rfids", getAllRfids(prisma));
+app.get("/rfids/trolleys", getTrolleysRfids(prisma));
 app.get("/supports", getAllSupports(prisma));
 app.get("/alerts", getAllAlerts(prisma));
 app.get("/alerts/active", getActiveAlerts(prisma));

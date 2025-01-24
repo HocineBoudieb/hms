@@ -1,3 +1,6 @@
+import { getLastEventTimestamp, calculateMinutesDifference } from "../helpers.js";
+
+
 /**
  * Retrieves all orders from the database, including associated RfidOrder, Alert, and Support records,
  * and calculates the duration since the last event for each order.
@@ -9,12 +12,14 @@ export const getAllOrders = (prisma) => async (req, res) => {
     const orders = await prisma.order.findMany({
       include: {
         RfidOrder: true,
+        Product: true,
         Alert: true,
         Support: true,
       },
     });
     const ordersWithDurationSinceLastEvent = await Promise.all(
       orders.map(async (order) => {
+        if(order.status === 0) return order;
         const lastEventTimestamp = await getLastEventTimestamp(order.id);
         const minutesDifference = await calculateMinutesDifference(lastEventTimestamp);
         return {
@@ -91,20 +96,23 @@ export const getLastEventForOrder = (prisma) => async (req, res) => {
  */
 export const assignOrderToRfid = (prisma) => async (req, res) => {
   try {
-    const { orderId, trolley} = req.body;
+    const { selectedOrder, selectedTrolleyId} = req.body;
+    const rfidId = selectedTrolleyId;
+    const orderId = selectedOrder;
+    console.log("Assigning order", orderId, "to RFID", rfidId);
     const rfid = await prisma.rfid.findFirst({
-      where: { trolley: trolley },
+      where: {
+        id: parseInt(rfidId),
+      }
     });
-    const rfidorderId = await prisma.rfidOrderId.create({
+    const rfidorderId = await prisma.rfidOrder.create({
       data: {
         status: 1, // 1 for "active"
-        rfidId: rfid.id
       },
     })
     const order = await prisma.order.update({
       where: { id: parseInt(orderId) },
-      data: { 
-        status:1,
+      data: {
         rfidOrderId: rfidorderId.id
       },
     });
@@ -114,8 +122,9 @@ export const assignOrderToRfid = (prisma) => async (req, res) => {
       data: { rfidOrderId: order.rfidOrderId },
     });
     
-    res.status(200).res.json(order);
+    res.status(200).json(order);
   } catch (error) {
+    console.log("error", error);
     res.status(500).json({ error: "Failed to assign order to RFID." });
   }
 };
