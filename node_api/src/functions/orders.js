@@ -20,7 +20,7 @@ export const getAllOrders = (prisma) => async (req, res) => {
     const ordersWithDurationSinceLastEvent = await Promise.all(
       orders.map(async (order) => {
         if(order.status === 0) return order;
-        const lastEventTimestamp = await getLastEventTimestamp(order.id);
+        const lastEventTimestamp = await getLastEventTimestamp(order.id,prisma);
         const minutesDifference = await calculateMinutesDifference(lastEventTimestamp);
         return {
           ...order,
@@ -28,7 +28,22 @@ export const getAllOrders = (prisma) => async (req, res) => {
         };
       })
     );
-    res.json(ordersWithDurationSinceLastEvent);
+    //add trolley data
+    const ordersWithTrolley = await Promise.all(
+      ordersWithDurationSinceLastEvent.map(async (order) => {
+        if(order.rfidOrderId === null) return order;
+        const rfid = await prisma.rfid.findUnique({
+          where: {
+            rfidOrderId: order.rfidOrderId,
+          }
+        });
+        return {
+          ...order,
+          trolley: rfid.trolley,
+        };
+      })
+    );
+    res.json(ordersWithTrolley);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch orders." });
   }

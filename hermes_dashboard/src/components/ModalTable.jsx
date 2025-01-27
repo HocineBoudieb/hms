@@ -1,4 +1,5 @@
 import React from 'react';
+import {Duration} from 'luxon'
 import {
     Table,
     TableBody,
@@ -22,12 +23,12 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                         <TableHead>
                             <TableRow>
                                 <TableCell>ID</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Start Date</TableCell>
-                                <TableCell>RFID</TableCell>
-                                <TableCell>Last Alert</TableCell>
-                                <TableCell>Last Support</TableCell>
-                                <TableCell>Since</TableCell>
+                                <TableCell>Statut</TableCell>
+                                <TableCell>Creation</TableCell>
+                                <TableCell>Chevalet</TableCell>
+                                <TableCell>Alerte</TableCell>
+                                <TableCell>P-C</TableCell>
+                                <TableCell>Depuis</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -36,7 +37,7 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                     <TableCell>{row.id}</TableCell>
                                     <TableCell>{row.status}</TableCell>
                                     <TableCell>{new Date(row.startDate).toLocaleString()}</TableCell>
-                                    <TableCell>{row.RfidOrder?.rfid || 'N/A'}</TableCell>
+                                    <TableCell>{row.trolley || 'N/A'}</TableCell>
                                     <TableCell>
                                         {row.Alert.length > 0 ? (
                                             <div key={row.Alert[0].id}>
@@ -52,11 +53,7 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                         ) : 'N/A'}
                                     </TableCell>
                                     <TableCell>
-                                        {row.daysSinceCreation >= 1440
-                                            ? `${Math.floor(row.daysSinceCreation / 1440)} days ${Math.floor((row.daysSinceCreation % 1440) / 60)} hours`
-                                            : row.daysSinceCreation >= 60
-                                            ? `${Math.floor(row.daysSinceCreation / 60)} hours`
-                                            : `${row.daysSinceCreation} minutes`}
+                                        {Duration.fromMillis(row.daysSinceCreation).shiftTo('hours','minutes').toHuman()}
                                     </TableCell>
                                 </TableRow>
                             ))}

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-
+import { Duration } from 'luxon';
+import Declaration from "../components/Declaration";
 /**
  * Workshop component fetches and displays workshop, encours, and orders details.
  * 
@@ -35,19 +36,22 @@ const Workshop = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [trolley, setTrolley] = useState([]);
     const [selectedTrolleyId, setSelectedTrolleyId] = useState(null);
+    const [isLoadingNfc, setIsLoadingNfc] = useState(false);
+    const [nfcError, setNfcError] = useState(null);
+    const [nfcData, setNfcData] = useState(null);
 
 
     useEffect(() => {
         const fetchWorkshop = async () => {
             try {
-                if(parseInt(id) === 0){
-                    const response = await axios.get('http://localhost:8081/orders');
-                    console.log("data", response.data);
-                    setOrders(response.data);
-                }else{
-                    const response = await axios.get(`http://localhost:8081/workshops/${id}`);
-                    setWorkshop(response.data);
+                if(parseInt(id) !== 0){
+                    const res = await axios.get(`http://localhost:8081/workshops/${id}`);
+                    setWorkshop(res.data);
+                    
                 }
+                const response = await axios.get('http://localhost:8081/orders');
+                console.log("data", response.data);
+                setOrders(response.data);
             } catch (error) {
                 console.error("Failed to fetch workshop:", error);
             }
@@ -102,33 +106,96 @@ const Workshop = () => {
         }
     };
 
+    const handleSupport = async (orderId) => {
+        setSelectedOrder(orderId);
+        setIsLoadingNfc(true);
+        setNfcError(null);
+
+        try {
+            // Notify the backend to start scanning
+            await axios.post("http://localhost:8081/nfc/start-scanning");
+
+            const MAX_RETRY_TIME = 10000;
+            const POLL_INTERVAL = 1000; // Intervalle de polling (500 ms)
+            const startTime = Date.now(); // Heure de départ
+            
+            const nfcPoll = async () => {
+                const elapsedTime = Date.now() - startTime;
+                if (elapsedTime > MAX_RETRY_TIME) {
+                    // Arrête le polling et notifie l'utilisateur
+                    setIsLoadingNfc(false);
+                    setNfcError("Timeout: Pas de badge reçu au bout de 10 secondes.");
+                    // Arrête le scanning côté backend
+                    await axios.post("http://localhost:8081/nfc/stop-scanning", { orderId });
+                    return;
+                }
+
+                try {
+                    const response = await axios.get("http://localhost:8081/nfc");
+
+                    if (response.status === 200 && response.data.nfcId) {
+                        // open the declare support modal and stop polling
+                        
+                        alert(`Support declared successfully for Order ${orderId}`);
+                        setIsLoadingNfc(false);
+                        setSelectedOrder(null);
+                        setNfcData(response.data);
+
+                        // Notify the backend to stop scanning
+                        await axios.post("http://localhost:8081/nfc/stop-scanning", { orderId });
+                        setIsModalVisible(true);
+                    } else {
+                        // Retry polling after a short delay
+                        setTimeout(nfcPoll, 500);
+                    }
+                } catch (pollError) {
+                    if (pollError.response?.status === 204) {
+                        console.log("No content, retrying...");
+                        setTimeout(nfcPoll, POLL_INTERVAL); // Retry on no content
+                    } else {
+                        throw pollError;
+                    }
+                }
+            };
+
+            // Start polling for NFC
+            await nfcPoll();
+        } catch (error) {
+            setNfcError("Erreur de Lecture du badge");
+            console.error("NFC error:", error);
+            setIsLoadingNfc(false);
+
+            // Ensure scanning stops on error
+            await axios.post("http://localhost:8081/nfc/stop-scanning", { orderId });
+        }
+    };
+
     if (parseInt(id) !== 0 && (!workshop || !encours)) {
         // Loading or error state
         return <div>Loading...</div>;
     }
     if(parseInt(id) !== 0){
-        return (
+        return (   
             <div className="flex flex-col w-full bg-[#f8f8f8] p-8">
+                {isModalVisible && (
+                    <Declaration
+                        orderData={orders.find((order) => order.id === 1)}
+                        nfcData={nfcData}
+                        onClose={() => setIsModalVisible(false)}
+                    />
+                )}
                 <h1 className="text-4xl font-bold text-center mb-8">{workshop.name}</h1>
-                <div className="flex flex-row w-full">
-                    <div className="flex flex-col h-full w-1/2 bg-white shadow p-8 m-4 rounded-lg">
-                        <h2 className="text-2xl font-semibold mb-4">OF Atelier</h2>
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead>
-                                <tr>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identifiant</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RFID</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alert</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Support</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {/* Map over workshop orders */}
-                                
-                            </tbody>
-                        </table>
+                {isLoadingNfc && (
+                <div className="flex items-center justify-center mb-4">
+                    <div className="text-blue-500 font-semibold">
+                        En attente de lecture du badge...
                     </div>
+                </div>
+                )}
+                {nfcError && (
+                    <div className="text-red-500 text-center mb-4">{nfcError}</div>
+                )}
+                <div className="flex flex-row w-full">
                     <div className="flex flex-col h-full w-1/2 bg-white shadow p-8 m-4 rounded-lg">
                         <h2 className="text-2xl font-semibold mb-4">OF EnCours</h2>
                         <table className="min-w-full divide-y divide-gray-200">
@@ -136,13 +203,46 @@ const Workshop = () => {
                                 <tr>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identifiant</th>
                                     <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">RFID</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alert</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Support</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chevalet</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Depuis</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {/* Map over encours orders */}
+                                {orders.filter(order => order.enCoursId === encours.id).map((order) => (
+                                    <tr key={order.id} onClick={() => handleSupport(order.id)}>
+                                        <td className="px-6 py-4 whitespace-nowrap">{order.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{order.product}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{order.trolley}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours','minutes').toHuman()}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="flex flex-col h-full w-1/2 bg-white shadow p-8 m-4 rounded-lg">
+                        <h2 className="text-2xl font-semibold mb-4">OF Atelier</h2>
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr >
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identifiant</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chevalet</th>
+                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Depuis</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {/* Map over workshop orders and filter for workshop id is id*/}
+                                {orders.filter(order => order.workshopId === workshop.id).map((order) => (
+                                    <tr key={order.id} onClick={() => handleSupport(order.id)}>
+                                        <td className="px-6 py-4 whitespace-nowrap">{order.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{order.product}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{order.trolley}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours','minutes').toHuman()}</td>
+                                    </tr>
+                                ))}
+                                
+                                
                             </tbody>
                         </table>
                     </div>
@@ -151,12 +251,14 @@ const Workshop = () => {
         );
     }
     else{
+        //eslint-disable-next-line
+        {/* First Workshop View, Assign Orders to Trolley */}
         return(
         <div className="w-full flex">
             {isModalVisible && (   
             <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-75 flex justify-center items-center">
                 <div className="bg-white p-8 rounded-lg shadow">
-                <h2 className="text-2xl font-semibold mb-4">Assigner un chariot à l'OF {selectedOrder}</h2>
+                <h2 className="text-2xl font-semibold mb-4">Assigner un chevalet à l'OF {selectedOrder}</h2>
                 <select
                     className="w-full p-2 mb-4 border border-gray-400 rounded"
                     value={selectedTrolleyId || ''}

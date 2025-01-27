@@ -1,3 +1,6 @@
+import { getLastEventTimestamp, calculateMinutesDifference } from "../helpers.js";
+
+
 export const getEnCours = (prisma) => async (req, res) => {
   try {
     const encours = await prisma.enCours.findMany({
@@ -44,10 +47,9 @@ export const getOrdersByEnCoursId = (prisma) => async (req, res) => {
         Support: true,
       },
     });
-    console.log("orders", orders);
     const ordersWithDurationSinceLastEvent = await Promise.all(
       orders.map(async (order) => {
-        const lastEventTimestamp = await getLastEventTimestamp(order.id);
+        const lastEventTimestamp = await getLastEventTimestamp(order.id,prisma);
         const minutesDifference = await calculateMinutesDifference(lastEventTimestamp);
         return {
           ...order,
@@ -55,8 +57,23 @@ export const getOrdersByEnCoursId = (prisma) => async (req, res) => {
         };
       })
     );
-    res.json(ordersWithDurationSinceLastEvent);
+    const ordersWithTrolley = await Promise.all(
+      ordersWithDurationSinceLastEvent.map(async (order) => {
+        if(order.rfidOrderId === null) return order;
+        const rfid = await prisma.rfid.findUnique({
+          where: {
+            rfidOrderId: order.rfidOrderId,
+          }
+        });
+        return {
+          ...order,
+          trolley: rfid.trolley,
+        };
+      })
+    );
+    res.json(ordersWithTrolley);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: "Failed to fetch orders." });
   }
 };

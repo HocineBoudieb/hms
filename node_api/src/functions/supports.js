@@ -30,8 +30,6 @@ export const getAllSupports = (prisma) => async (req, res) => {
    */
 export const createSupport = (prisma) => async (req, res) => {
   try {
-    console.log("creating support: ", req.body);
-    return;
     //format: rfidId type artisanNfc
     const { rfidId, type, artisan } = req.body;
     //Get order from rfid ref
