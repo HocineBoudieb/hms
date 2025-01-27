@@ -93,9 +93,10 @@ const Workshop = () => {
 
     const handleTrolleyAssign = async () => {
         try {
-            console.log("Assigning trolley to order:",selectedTrolleyId, selectedOrder);
             await axios.post(`http://localhost:8081/orders/assign`, {selectedOrder, selectedTrolleyId});
             setIsModalVisible(false);
+            //reload the page
+            window.location.reload();
         } catch (error) {
             console.error('Failed to assign trolley to order:', error);
         }
@@ -195,7 +196,7 @@ const Workshop = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {orders.filter(order => order.status === 0).map(order => (
+                        {orders.filter(order => order.rfidOrderId === null).map(order => (
                             <tr key={order.id} onClick={() => handleOrderClick(order.id)}>
                                 <td className="px-6 py-4 whitespace-nowrap">{order.id}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{order.Product.material} {order.Product.color} {order.Product.option}</td>

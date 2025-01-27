@@ -1,0 +1,182 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Event {
+  id Int [pk, increment]
+  orderId Int [not null]
+  timestamp DateTime [not null]
+  eventType Int [not null]
+  enCoursId Int
+  Order Order [not null]
+}
+
+Table Rfid {
+  id Int [pk, increment]
+  trolley Int [unique]
+  enCoursId Int
+  workshopId Int
+  rfidOrderId Int [unique]
+  reference String [unique, not null]
+  RfidOrder RfidOrder
+}
+
+Table EnCours {
+  id Int [pk, increment]
+  antennaId Int [unique, not null]
+  Antenna Antenna [not null]
+  Workshop Workshop [not null]
+  Order Order [not null]
+  Time Time [not null]
+}
+
+Table Order {
+  id Int [pk, increment]
+  status Int [not null]
+  startDate DateTime [not null]
+  endDate DateTime
+  enCoursId Int
+  workshopId Int
+  rfidOrderId Int [unique]
+  productId Int [not null]
+  Product Product [not null]
+  Workshop Workshop
+  EnCours EnCours
+  RfidOrder RfidOrder
+  Event Event [not null]
+  Alert Alert [not null]
+  Support Support [not null]
+  Time Time [not null]
+}
+
+Table Artisan {
+  id Int [pk, increment]
+  name String [not null]
+  workshopId Int
+  nfcId String
+  Worshop Workshop
+  Support Support [not null]
+}
+
+Table Alert {
+  id Int [pk, increment]
+  orderId Int [not null]
+  type Int [not null]
+  status Int [not null]
+  startDate DateTime [not null]
+  endDate DateTime
+  Order Order [not null]
+}
+
+Table RfidOrder {
+  id Int [pk, increment]
+  status Int [not null]
+  Rfid Rfid
+  Order Order
+}
+
+Table Workshop {
+  id Int [pk, increment]
+  name String [not null]
+  enCoursId Int [not null]
+  EnCours EnCours [not null]
+  Order Order [not null]
+  Support Support [not null]
+  Time Time [not null]
+  Activity Activity [not null]
+  Artisan Artisan [not null]
+}
+
+Table Support {
+  id Int [pk, increment]
+  orderId Int [not null]
+  artisanId Int [not null]
+  workshopId Int [not null]
+  type Int [not null]
+  startDate DateTime [not null]
+  endDate DateTime
+  Order Order [not null]
+  Artisan Artisan [not null]
+  Workshop Workshop [not null]
+}
+
+Table Antenna {
+  id Int [pk, increment]
+  reference Int [unique, not null]
+  EnCours EnCours [not null]
+}
+
+Table Stats {
+  id Int [pk, increment]
+  name String [not null]
+  value Decimal [not null]
+  unit String [not null]
+  change Int [not null]
+  isUp Boolean
+  right Boolean
+  lastTime DateTime [not null]
+}
+
+Table Time {
+  id Int [pk, increment]
+  orderId Int [not null]
+  duration Int [not null]
+  enCoursId Int
+  workshopId Int
+  Order Order [not null]
+  EnCours EnCours
+  Workshop Workshop
+}
+
+Table Product {
+  id Int [pk, increment]
+  material String [not null]
+  color String [not null]
+  option String [not null]
+  averageDuration Float [not null]
+  averageEcDuration Float [not null]
+  averagePrdDuration Float [not null]
+  Order Order [not null]
+}
+
+Table Activity {
+  id Int [pk, increment]
+  name String [not null]
+  description String [not null]
+  workshopId Int [not null]
+  Worshop Workshop [not null]
+}
+
+Ref: Event.orderId > Order.id
+
+Ref: Rfid.rfidOrderId - RfidOrder.id
+
+Ref: EnCours.antennaId > Antenna.id
+
+Ref: Order.productId > Product.id
+
+Ref: Order.workshopId > Workshop.id
+
+Ref: Order.enCoursId > EnCours.id
+
+Ref: Order.rfidOrderId - RfidOrder.id
+
+Ref: Artisan.workshopId > Workshop.id
+
+Ref: Alert.orderId > Order.id
+
+Ref: Workshop.enCoursId > EnCours.id
+
+Ref: Support.orderId > Order.id
+
+Ref: Support.artisanId > Artisan.id
+
+Ref: Support.workshopId > Workshop.id
+
+Ref: Time.orderId > Order.id
+
+Ref: Time.enCoursId > EnCours.id
+
+Ref: Time.workshopId > Workshop.id
+
+Ref: Activity.workshopId > Workshop.id
