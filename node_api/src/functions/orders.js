@@ -21,10 +21,10 @@ export const getAllOrders = (prisma) => async (req, res) => {
       orders.map(async (order) => {
         if(order.status === 0) return order;
         const lastEventTimestamp = await getLastEventTimestamp(order.id,prisma);
-        const minutesDifference = await calculateMinutesDifference(lastEventTimestamp);
+        const Difference = new Date() - lastEventTimestamp;
         return {
           ...order,
-          daysSinceCreation: minutesDifference,
+          daysSinceCreation: Difference,
         };
       })
     );

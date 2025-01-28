@@ -54,15 +54,16 @@ export const getOrdersByWorkshopId = (prisma) => async (req, res) => {
         RfidOrder: true,
         Alert: true,
         Support: true,
+        Product: true,
       },
     });
     const ordersWithDurationSinceLastEvent = await Promise.all(
       orders.map(async (order) => {
         const lastEventTimestamp = await getLastEventTimestamp(order.id,prisma);
-        const minutesDifference = await calculateMinutesDifference(lastEventTimestamp);
+        const Difference = new Date() - lastEventTimestamp;
         return {
           ...order,
-          daysSinceCreation: minutesDifference,
+          daysSinceCreation: Difference,
         };
       })
     );
@@ -81,7 +82,6 @@ export const getOrdersByWorkshopId = (prisma) => async (req, res) => {
       })
     );
     res.json(ordersWithTrolley);
-    res.json(ordersWithDurationSinceLastEvent);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch orders." });
   }
@@ -101,6 +101,20 @@ export const createWorkshop = (prisma) => async (req, res) => {
     res.json(workshop);
   } catch (error) {
     res.status(500).json({ error: "Failed to create workshop." });
+  }
+};
+
+export const getActivitiesByWorkshopId = (prisma) => async (req, res) => {
+  try {
+    const { id } = req.params;
+    const activities = await prisma.activity.findMany({
+      where: {
+        workshopId: parseInt(id),
+      },
+    });
+    res.json(activities);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch activities." });
   }
 };
 

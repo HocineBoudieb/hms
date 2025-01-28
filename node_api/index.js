@@ -29,8 +29,6 @@ const port = 8081;
 app.use(express.json());
 app.use(cors());
 
-let isScanning = false;
-let currentNFC = null;
 //***************ROUTES***************
 
 
@@ -66,50 +64,84 @@ app.post("/sample", createSampleOrder(prisma));
 
 //***************NFC***************
 
-app.post("/nfc/start-scanning", (req, res) => {
-    isScanning = true;
-    currentNFC = null;
-    res.json({ success: true });
-});
-app.post("/nfc/stop-scanning", (req, res) => {
-    isScanning = false;
-    currentNFC = null;
-    res.json({ success: true });
+// Store scanning state for multiple workshops
+let workshopScanningState = {}; // { [workshopId]: { isScanning: boolean, currentNFC: string|null } }
+
+//***************NFC***************
+
+// Start scanning for a specific workshop
+app.post("/nfc/:workshopId/start-scanning", (req, res) => {
+    const { workshopId } = req.params;
+    if (!workshopScanningState[workshopId]) {
+        workshopScanningState[workshopId] = { isScanning: true, currentNFC: null };
+    } else {
+        workshopScanningState[workshopId].isScanning = true;
+        workshopScanningState[workshopId].currentNFC = null;
+    }
+    res.json({ success: true, message: `Started scanning for workshop ${workshopId}` });
 });
 
-app.post("/nfc", (req, res) => {
-    const { nfcTag } = req.body;
+// Stop scanning for a specific workshop
+app.post("/nfc/:workshopId/stop-scanning", (req, res) => {
+    const { workshopId } = req.params;
+    if (workshopScanningState[workshopId]) {
+        workshopScanningState[workshopId].isScanning = false;
+        workshopScanningState[workshopId].currentNFC = null;
+    }
+    res.json({ success: true, message: `Stopped scanning for workshop ${workshopId}` });
+});
+
+// Handle NFC detection for a specific workshop
+app.post("/nfc/:workshopId", (req, res) => {
+    const { workshopId } = req.params;
+    const { nfc, timestamp } = req.body;
+
+    console.log(`Received NFC data for workshop ${workshopId}:`, nfc, "timestamp:", timestamp);
+
     try {
-        if (!isScanning) {
-            return res.status(403).json({ message: "NFC scanning is not allowed unless assigning." });
+        if (!workshopScanningState[workshopId] || !workshopScanningState[workshopId].isScanning) {
+            return res.status(403).json({ message: `NFC scanning is not allowed for workshop ${workshopId}.` });
         }
 
-        if (nfcTag) {
-            currentNFC = nfcTag;
-            res.status(200).json({ message: `NFC tag ${nfcTag} detected and accepted.`, nfcTag });
+        if (nfc) {
+            workshopScanningState[workshopId].currentNFC = nfc;
+            res.status(200).json({ message: `NFC tag ${nfc} detected for workshop ${workshopId} and accepted.` });
         } else {
             res.status(400).json({ message: "No NFC tag provided." });
         }
     } catch (error) {
-        console.error("Failed to handle NFC scanning:", error);
+        console.error(`Failed to handle NFC scanning for workshop ${workshopId}:`, error);
         res.status(500).json({ message: "Failed to handle NFC scanning." });
     }
 });
 
+// Get the current NFC state for a specific workshop
+app.get("/nfc/:workshopId", async (req, res) => {
+    const { workshopId } = req.params;
 
-app.get("/nfc", async (req, res) => {
     try {
-        if (!isScanning) {
-            return res.status(403).json({ message: "NFC scanning is not allowed unless assigning." });
-        }
-        if(!currentNFC){
-            return res.status(204).json({ message: "NFC tag not scanned yet. wait a few seconds and try again." });
+        const state = workshopScanningState[workshopId];
+
+        if (!state || !state.isScanning) {
+            return res.status(403).json({ message: `NFC scanning is not allowed for workshop ${workshopId}.` });
         }
 
-        const artisan = await prisma.artisan.findUnique({ where: { nfcId: currentNFC } });
-        res.json(artisan);
+        if (!state.currentNFC) {
+            return res.status(204).json({ message: `NFC tag not scanned yet for workshop ${workshopId}. Wait a few seconds and try again.` });
+        }
+
+        const artisan = await prisma.artisan.findFirst({ where: { nfcId: state.currentNFC } });
+        if (!artisan) {
+            return res.status(404).json({ message: `Artisan not found for NFC tag ${state.currentNFC}.` });
+        }
+
+        res.json({
+            workshopId,
+            artisan,
+            nfcTag: state.currentNFC,
+        });
     } catch (error) {
-        console.error("Failed to handle NFC scanning:", error);
+        console.error(`Failed to handle NFC scanning for workshop ${workshopId}:`, error);
         res.status(500).json({ message: "Failed to handle NFC scanning." });
     }
 });

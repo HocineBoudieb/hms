@@ -26,8 +26,7 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                 <TableCell>Statut</TableCell>
                                 <TableCell>Creation</TableCell>
                                 <TableCell>Chevalet</TableCell>
-                                <TableCell>Alerte</TableCell>
-                                <TableCell>P-C</TableCell>
+                                <TableCell>Produit</TableCell>
                                 <TableCell>Depuis</TableCell>
                             </TableRow>
                         </TableHead>
@@ -38,20 +37,7 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                     <TableCell>{row.status}</TableCell>
                                     <TableCell>{new Date(row.startDate).toLocaleString()}</TableCell>
                                     <TableCell>{row.trolley || 'N/A'}</TableCell>
-                                    <TableCell>
-                                        {row.Alert.length > 0 ? (
-                                            <div key={row.Alert[0].id}>
-                                                {`Type: ${row.Alert[0].type}, Start: ${new Date(row.Alert[0].startDate).toLocaleString()}, End: ${new Date(row.Alert[0].endDate).toLocaleString()}`}
-                                            </div>
-                                        ) : 'N/A'}
-                                    </TableCell>
-                                    <TableCell>
-                                        {row.Support.length > 0 ? (
-                                            <div key={row.Support[0].id}>
-                                                {`Type: ${row.Support[0].type}, Artisan ID: ${row.Support[0].artisanId}, Start: ${new Date(row.Support[0].startDate).toLocaleString()}, End: ${new Date(row.Support[0].endDate).toLocaleString()}`}
-                                            </div>
-                                        ) : 'N/A'}
-                                    </TableCell>
+                                    <TableCell>{row.Product.material} {row.Product.color} {row.Product.option}</TableCell>
                                     <TableCell>
                                         {Duration.fromMillis(row.daysSinceCreation).shiftTo('hours','minutes').toHuman()}
                                     </TableCell>

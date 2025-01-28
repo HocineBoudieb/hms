@@ -115,7 +115,7 @@ const Workshop = () => {
             // Notify the backend to start scanning
             await axios.post("http://localhost:8081/nfc/start-scanning");
 
-            const MAX_RETRY_TIME = 10000;
+            const MAX_RETRY_TIME = 30000;
             const POLL_INTERVAL = 1000; // Intervalle de polling (500 ms)
             const startTime = Date.now(); // Heure de départ
             
@@ -124,7 +124,7 @@ const Workshop = () => {
                 if (elapsedTime > MAX_RETRY_TIME) {
                     // Arrête le polling et notifie l'utilisateur
                     setIsLoadingNfc(false);
-                    setNfcError("Timeout: Pas de badge reçu au bout de 10 secondes.");
+                    setNfcError("Timeout: Pas de badge reçu au bout de 30 secondes.");
                     // Arrête le scanning côté backend
                     await axios.post("http://localhost:8081/nfc/stop-scanning", { orderId });
                     return;
@@ -135,8 +135,6 @@ const Workshop = () => {
 
                     if (response.status === 200 && response.data.nfcId) {
                         // open the declare support modal and stop polling
-                        
-                        alert(`Support declared successfully for Order ${orderId}`);
                         setIsLoadingNfc(false);
                         setSelectedOrder(null);
                         setNfcData(response.data);
@@ -201,20 +199,20 @@ const Workshop = () => {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identifiant</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chevalet</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Depuis</th>
+                                    <th className="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identifiant</th>
+                                    <th className="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+                                    <th className="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chevalet</th>
+                                    <th className="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Depuis</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {/* Map over encours orders */}
                                 {orders.filter(order => order.enCoursId === encours.id).map((order) => (
                                     <tr key={order.id} onClick={() => handleSupport(order.id)}>
-                                        <td className="px-6 py-4 whitespace-nowrap">{order.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{order.product}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{order.trolley}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours','minutes').toHuman()}</td>
+                                        <td className="px-3 py-4 whitespace-nowrap">{order.id}</td>
+                                        <td className="px-3 py-4 whitespace-nowrap">{order.Product.material} {order.Product.color} {order.Product.option}</td>
+                                        <td className="px-3 py-4 whitespace-nowrap">{order.trolley}</td>
+                                        <td className="px-3 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toHuman({ unitDisplay: "short" })}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -225,20 +223,20 @@ const Workshop = () => {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr >
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identifiant</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chevalet</th>
-                                    <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Depuis</th>
+                                    <th className="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identifiant</th>
+                                    <th className="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+                                    <th className="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chevalet</th>
+                                    <th className="px-3 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Depuis</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {/* Map over workshop orders and filter for workshop id is id*/}
                                 {orders.filter(order => order.workshopId === workshop.id).map((order) => (
-                                    <tr key={order.id} onClick={() => handleSupport(order.id)}>
-                                        <td className="px-6 py-4 whitespace-nowrap">{order.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{order.product}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{order.trolley}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours','minutes').toHuman()}</td>
+                                    <tr key={order.id}>
+                                        <td className="px-3 py-4 whitespace-nowrap">{order.id}</td>
+                                        <td className="px-3 py-4 whitespace-nowrap">{order.product.material}</td>
+                                        <td className="px-3 py-4 whitespace-nowrap">{order.trolley}</td>
+                                        <td className="px-3 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours','minutes').toHuman()}</td>
                                     </tr>
                                 ))}
                                 

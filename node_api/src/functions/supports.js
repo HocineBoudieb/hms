@@ -31,17 +31,11 @@ export const getAllSupports = (prisma) => async (req, res) => {
 export const createSupport = (prisma) => async (req, res) => {
   try {
     //format: rfidId type artisanNfc
-    const { rfidId, type, artisan } = req.body;
-    //Get order from rfid ref
-    const rfid = await prisma.rfid.findFirst({
-      where: {
-        reference: rfidId,
-      },
-    });
-    const rfidorderId = rfid.rfidOrderId;
+    const { orderId, type, artisan } = req.body;
+
     const order = await prisma.order.findUnique({
       where: {
-        rfidOrderId: rfidorderId,
+        id: orderId,
       },
     });
     //get order last localization from last event

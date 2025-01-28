@@ -108,23 +108,23 @@ const Alerts = () => {
     return (
         <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
             <div className="flex flex-col ml-64 mt-16">
-            <h1 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] mb-8">ALERTS DASHBOARD</h1>
+            <h1 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] mb-8">Alertes</h1>
                 
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
-                    <MetricCard title="Total Alerts" value={metrics.totalAlerts} />
-                    <MetricCard title="Active Alerts" value={metrics.activeAlerts} />
-                    <MetricCard title="Avg. Resolution Time" value={`${metrics.avgResolutionTime} min`} />
+                    <MetricCard title="Alertes Totales" value={metrics.totalAlerts} />
+                    <MetricCard title="Alertes Actives" value={metrics.activeAlerts} />
+                    <MetricCard title="Temps Moyen de Resolution" value={`${metrics.avgResolutionTime} min`} />
                 </div>
                 
                 <div className="flex justify-between">
                     <div style={{  width: '45%', backgroundColor: '#ffffff', padding: '20px', borderRadius: '8px' }}>
-                        <strong><h2 className="text-2xl align-center">Alerts Resolved Under 10 Min</h2></strong>
+                        <strong><h2 className="text-2xl align-center">Résolu en moins de 10 minutes</h2></strong>
                         <Doughnut data={doughnutData} options={doughnutOptions} />
                         {/*<Pie data={chartData} options={{ responsive: true, maintainAspectRatio: false }} />*/}
                     </div>
                     
                     <div style={{ width: '50%', backgroundColor: '#ffffff', padding: '20px', borderRadius: '8px', maxHeight: '400px', overflowY: 'auto' }}>
-                        <h2 style={{ marginTop: 0 }}>Recent Alerts</h2>
+                        <h2 style={{ marginTop: 0 }}>Alertes Récentes</h2>
                         <ul style={{ listStyleType: 'none', padding: 0 }}>
                             {alerts.slice(0, 5).map((alert) => (
                                 <li key={alert.id} style={{ marginBottom: '10px', backgroundColor: '#fff', padding: '10px', borderRadius: '4px' }}>

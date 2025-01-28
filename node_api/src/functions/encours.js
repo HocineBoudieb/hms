@@ -45,15 +45,16 @@ export const getOrdersByEnCoursId = (prisma) => async (req, res) => {
         RfidOrder: true,
         Alert: true,
         Support: true,
+        Product: true,
       },
     });
     const ordersWithDurationSinceLastEvent = await Promise.all(
       orders.map(async (order) => {
         const lastEventTimestamp = await getLastEventTimestamp(order.id,prisma);
-        const minutesDifference = await calculateMinutesDifference(lastEventTimestamp);
+        const Difference = new Date() - lastEventTimestamp;
         return {
           ...order,
-          daysSinceCreation: minutesDifference,
+          daysSinceCreation: Difference,
         };
       })
     );
