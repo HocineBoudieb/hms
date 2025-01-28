@@ -8,6 +8,7 @@ import Settings from './pages/Settings';
 import Workshop from './pages/Workshop';
 
 function App() {
+  console.log("API URL:", process.env.REACT_APP_API_URL);
   return (
     <div className="flex min-h-screen bg-[#f8f8f8] min-w-full">
       <Routes>

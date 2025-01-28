@@ -30,7 +30,7 @@ const Tables = () => {
       try {
         setLoading(true);
         // Replace with your actual API endpoint to fetch data for a specific table
-        const response = await axios.get(`http://localhost:8081/${table}`);
+        const response = await axios.get(process.env.API_URL+`/${table}`);
         setTableData((prevData) => ({ ...prevData, [table]: response.data }));
       } catch (error) {
         console.error(`Error fetching data for table ${table}:`, error);

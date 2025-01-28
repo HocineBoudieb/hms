@@ -92,9 +92,10 @@ Table Support {
   orderId Int [not null]
   artisanId Int [not null]
   workshopId Int [not null]
-  type Int [not null]
+  activityId Int [not null]
   startDate DateTime [not null]
   endDate DateTime
+  Activity Activity [not null]
   Order Order [not null]
   Artisan Artisan [not null]
   Workshop Workshop [not null]
@@ -144,6 +145,7 @@ Table Activity {
   name String [not null]
   description String [not null]
   workshopId Int [not null]
+  Support Support [not null]
   Worshop Workshop [not null]
 }
 
@@ -166,6 +168,8 @@ Ref: Artisan.workshopId > Workshop.id
 Ref: Alert.orderId > Order.id
 
 Ref: Workshop.enCoursId > EnCours.id
+
+Ref: Support.activityId > Activity.id
 
 Ref: Support.orderId > Order.id
 

@@ -17,7 +17,7 @@ const Header = () => {
   useEffect(() => {
     const fetchAlerts = async () => {
         try {
-            const response = await axios.get('http://localhost:8081/alerts/active');
+            const response = await axios.get(process.env.REACT_APP_API_URL+'/alerts/active');
             if(response.data.length > 0){
               sethasActiveAlerts(true);
               setRecentAlert(response.data[0]);

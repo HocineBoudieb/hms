@@ -102,9 +102,10 @@ model Support {
   orderId    Int
   artisanId  Int
   workshopId Int
-  type       Int
+  activityId Int
   startDate  DateTime
   endDate    DateTime?
+  Activity   Activity  @relation(fields: [activityId], references: [id])
   Order      Order     @relation(fields: [orderId], references: [id])
   Artisan    Artisan   @relation(fields: [artisanId], references: [id])
   Workshop   Workshop  @relation(fields: [workshopId], references: [id])
@@ -154,5 +155,6 @@ model Activity{
   name        String 
   description String
   workshopId  Int
+  Support     Support[]
   Worshop     Workshop @relation(fields: [workshopId], references: [id])
 }

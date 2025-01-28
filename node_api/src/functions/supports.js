@@ -30,9 +30,9 @@ export const getAllSupports = (prisma) => async (req, res) => {
    */
 export const createSupport = (prisma) => async (req, res) => {
   try {
-    //format: rfidId type artisanNfc
-    const { orderId, type, artisan } = req.body;
-
+    //format: orderid type artisanNfc
+    const { orderId, nfcTag, activity } = req.body;
+    console.log("support body : ", req.body);
     const order = await prisma.order.findUnique({
       where: {
         id: orderId,
@@ -64,18 +64,10 @@ export const createSupport = (prisma) => async (req, res) => {
         workshopId: Workshop.id,
       },
     });
-    await prisma.rfid.update({
-      where: {
-        id: rfid.id,
-      },
-      data: {
-        workshopId: Workshop.id,
-      }
-    })
     //Get artisan from artisan nfc
     const artisan_instance = await prisma.artisan.findFirst({
       where: {
-        nfcId: artisan,
+        nfcId: nfcTag,
       },
     });
     const support = await prisma.support.create({
@@ -83,7 +75,7 @@ export const createSupport = (prisma) => async (req, res) => {
         orderId: order.id,
         artisanId: artisan_instance.id,
         workshopId: Workshop.id,
-        type: parseInt(type.split(" ")[1]),
+        activityId: activity,
         startDate: new Date(),
         endDate: null,
       },

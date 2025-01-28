@@ -1,21 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const Declaration = ({ nfcData, orderData, onClose }) => {
+const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
     const [selectedActivity, setSelectedActivity] = useState("");
     const [error, setError] = useState(null);
+    const [activities, setActivities] = useState([]);
+
+    useEffect(() => {
+        const fetchActivities = async () => {
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/workshops/${workshopId}/activities`);
+                setActivities(response.data);
+            } catch (error) {
+                console.error("Failed to fetch activities:", error);
+            }
+        };
+
+        fetchActivities();
+    }, [workshopId]);
 
     const handleTakeCharge = async () => {
         if (!selectedActivity) {
             setError("Veuillez sélectionner une activité avant de prendre en charge.");
             return;
         }
-
         try {
+            console.log("nfc data", nfcData);
             // Envoi de la requête pour déclarer la prise en charge
-            await axios.post("http://localhost:8081/orders/take-charge", {
+            await axios.post(process.env.REACT_APP_API_URL + "/supports", {
                 orderId: orderData.id,
-                nfcTag: nfcData.nfc,
+                nfcTag: nfcData.nfcId,
                 activity: selectedActivity,
             });
 
@@ -39,7 +53,7 @@ const Declaration = ({ nfcData, orderData, onClose }) => {
                 </button>
                 <div className="mb-4">
                     <p>
-                        <strong>Badge Scanné :</strong> {nfcData.name}
+                        <strong>Badge Scanné :</strong> {nfcData.artisan}
                     </p>
                     <p>
                         <strong>Ordre de Fabrication :</strong> {orderData.id} -{" "}
@@ -57,11 +71,15 @@ const Declaration = ({ nfcData, orderData, onClose }) => {
                         className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
                     >
                         <option value="">-- Choisir une activité --</option>
-                        <option value="montage">Montage</option>
-                        <option value="assemblage">Assemblage</option>
-                        <option value="contrôle qualité">Contrôle Qualité</option>
-                        <option value="emballage">Emballage</option>
+                        {activities.map((activity) => (
+                            <option key={activity.id} value={activity.id}> {activity.name}</option>
+                        ))}
                     </select>
+                    {selectedActivity && (
+                    <p className="mt-2 text-sm text-gray-600">
+                        <strong>Description :</strong>{console.log(selectedActivity)}
+                    </p>
+                    )}
                 </div>
                 {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
                 <div className="flex justify-end">

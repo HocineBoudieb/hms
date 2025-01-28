@@ -118,3 +118,25 @@ export const getActivitiesByWorkshopId = (prisma) => async (req, res) => {
   }
 };
 
+export const getWorkshopActivities = (prisma) => async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const workshop = await prisma.workshop.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      include: {
+        Activity: true,
+      },
+    });
+
+    if (!workshop) {
+      return res.status(404).json({ error: "Workshop not found." });
+    }
+
+    res.json(workshop.Activity);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch activities." });
+  }
+};

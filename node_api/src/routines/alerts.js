@@ -9,7 +9,6 @@
  * @param {number} type The type of the alert.
  */
 async function createAlert(orderId, type,prisma) {
-    console.log("entered alert creation");
     //if alert already exists for this order with the same type, do nothing
     const existingAlert = await prisma.alert.findFirst({
       where: {
@@ -19,7 +18,6 @@ async function createAlert(orderId, type,prisma) {
       },
     });
     if (existingAlert) {
-      console.log("Alert already exist");
       return;
     }
     console.log("Creating Alert");
