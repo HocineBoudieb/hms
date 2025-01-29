@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Duration } from 'luxon';
 import Declaration from "../components/Declaration";
+import apiUrl from '../api';
 /**
  * Workshop component fetches and displays workshop, encours, and orders details.
  * 
@@ -45,11 +46,11 @@ const Workshop = () => {
         const fetchWorkshop = async () => {
             try {
                 if(parseInt(id) !== 0){
-                    const res = await axios.get(`${process.env.REACT_APP_API_URL}/workshops/${id}`);
+                    const res = await axios.get(`${apiUrl}/workshops/${id}`);
                     setWorkshop(res.data);
                     
                 }
-                const response = await axios.get(process.env.REACT_APP_API_URL+'/orders');
+                const response = await axios.get(apiUrl+'/orders');
                 console.log("data", response.data);
                 setOrders(response.data);
             } catch (error) {
@@ -65,7 +66,7 @@ const Workshop = () => {
         }
         const fetchEncours = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/encours/${workshop.enCoursId}`);
+                const response = await axios.get(`${apiUrl}/encours/${workshop.enCoursId}`);
                 setEncours(response.data);
             } catch (error) {
                 console.error('Failed to fetch encours:', error);
@@ -78,7 +79,7 @@ const Workshop = () => {
     useEffect(() => {
         const fetchTrolley = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/rfids/trolleys`);
+                const response = await axios.get(`${apiUrl}/rfids/trolleys`);
                 console.log("trolley", response.data);
                 setTrolley(response.data);
             } catch (error) {
@@ -97,7 +98,7 @@ const Workshop = () => {
 
     const handleTrolleyAssign = async () => {
         try {
-            await axios.post(`${process.env.REACT_APP_API_URL}/orders/assign`, {selectedOrder, selectedTrolleyId});
+            await axios.post(`${apiUrl}/orders/assign`, {selectedOrder, selectedTrolleyId});
             setIsModalVisible(false);
             //reload the page
             window.location.reload();
@@ -111,7 +112,7 @@ const Workshop = () => {
         if (selectedOrder === orderId && isLoadingNfc) {
             setIsLoadingNfc(false);
             setNfcError(null);
-            await axios.post(`${process.env.REACT_APP_API_URL}/nfc/${id}/stop-scanning`);
+            await axios.post(`${apiUrl}/nfc/${id}/stop-scanning`);
             return;
         } 
         setIsLoadingNfc(true);
@@ -119,7 +120,7 @@ const Workshop = () => {
 
         try {
             // Notify the backend to start scanning
-            await axios.post(`${process.env.REACT_APP_API_URL}/nfc/${id}/start-scanning`);
+            await axios.post(`${apiUrl}/nfc/${id}/start-scanning`);
 
             const MAX_RETRY_TIME = 30000;
             const POLL_INTERVAL = 1000; // Intervalle de polling (500 ms)
@@ -133,12 +134,12 @@ const Workshop = () => {
                     setSelectedOrder(null);
                     setNfcError("Timeout: Pas de badge reçu au bout de 30 secondes.");
                     // Arrête le scanning côté backend
-                    await axios.post(`${process.env.REACT_APP_API_URL}/nfc/${id}/stop-scanning`);
+                    await axios.post(`${apiUrl}/nfc/${id}/stop-scanning`);
                     return;
                 }
 
                 try {
-                    const response = await axios.get(`${process.env.REACT_APP_API_URL}/nfc/${id}`);
+                    const response = await axios.get(`${apiUrl}/nfc/${id}`);
 
                     if (response.status === 200 && response.data.nfcId) {
                         // open the declare support modal and stop polling
@@ -146,7 +147,7 @@ const Workshop = () => {
                         setNfcData(response.data);
 
                         // Notify the backend to stop scanning
-                        await axios.post(`${process.env.REACT_APP_API_URL}/nfc/${id}/stop-scanning`);
+                        await axios.post(`${apiUrl}/nfc/${id}/stop-scanning`);
                         setIsModalVisible(true);
                         console.log("order data",  selectedOrder);
                     } 
@@ -163,7 +164,7 @@ const Workshop = () => {
                         setIsLoadingNfc(false);
                         setSelectedOrder(null);
                         setNfcError("Sélectionnez un of pour lire le badge.");
-                        await axios.post(`${process.env.REACT_APP_API_URL}/nfc/${id}/stop-scanning`);
+                        await axios.post(`${apiUrl}/nfc/${id}/stop-scanning`);
                     }else {
                         throw pollError;
                     }
@@ -178,7 +179,7 @@ const Workshop = () => {
             setIsLoadingNfc(false);
 
             // Ensure scanning stops on error
-            await axios.post(`${process.env.REACT_APP_API_URL}/nfc/${id}/stop-scanning`);
+            await axios.post(`${apiUrl}/nfc/${id}/stop-scanning`);
         }
     };
 

@@ -6,9 +6,9 @@ import Tables from './pages/Tables';
 import Alerts from './pages/Alerts';
 import Settings from './pages/Settings';
 import Workshop from './pages/Workshop';
-
+import apiUrl from './api';
 function App() {
-  console.log("API URL:", process.env.REACT_APP_API_URL);
+  console.log("API URL:", apiUrl);
   return (
     <div className="flex min-h-screen bg-[#f8f8f8] min-w-full">
       <Routes>

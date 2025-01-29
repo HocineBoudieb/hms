@@ -2,6 +2,7 @@ import React from 'react';
 import { Bell, Search, User } from 'lucide-react';
 import { useEffect,useState } from 'react';
 import axios from 'axios';
+import apiUrl from '../api';
 
 /**
  * @function Header
@@ -17,7 +18,7 @@ const Header = () => {
   useEffect(() => {
     const fetchAlerts = async () => {
         try {
-            const response = await axios.get(process.env.REACT_APP_API_URL+'/alerts/active');
+            const response = await axios.get(apiUrl+'/alerts/active');
             if(response.data.length > 0){
               sethasActiveAlerts(true);
               setRecentAlert(response.data[0]);

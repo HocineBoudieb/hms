@@ -3,7 +3,7 @@ import axios from "axios";
 import { Doughnut } from "react-chartjs-2";
 //import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-
+import apiUrl from '../api';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const alertTypeMap = {
@@ -29,7 +29,7 @@ const Alerts = () => {
     useEffect(() => {
         const fetchAlerts = async () => {
             try {
-                const response = await axios.get(process.env.REACT_APP_API_URL + "/alerts");
+                const response = await axios.get(apiUrl + "/alerts");
                 setAlerts(response.data);
                 calculateMetrics(response.data);
             } catch (error) {

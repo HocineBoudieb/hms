@@ -3,6 +3,8 @@ import axios from 'axios';
 import ImageWS from '../assets/workshop.png';
 import ImageEC from '../assets/encours.png';
 import ModalTable from './ModalTable';
+import apiUrl from '../api';
+
 
 const Display = () => {
     const [workshops, setWorkshops] = useState([]);
@@ -14,7 +16,7 @@ const Display = () => {
     useEffect(() => {
         const fetchWorkshops = async () => {
             try {
-                const response = await axios.get(process.env.REACT_APP_API_URL+'/workshops');
+                const response = await axios.get(apiUrl+'/workshops');
                 setWorkshops(response.data);
             } catch (error) {
                 console.error('Failed to fetch workshops:', error);
@@ -35,7 +37,7 @@ const Display = () => {
     useEffect(() => {
         const fetchEncours = async () => {
             try {
-                const response = await axios.get(process.env.REACT_APP_API_URL+'/encours');
+                const response = await axios.get(apiUrl+'/encours');
                 setEncours(response.data);
             } catch (error) {
                 console.error('Failed to fetch encours:', error);
@@ -60,10 +62,10 @@ const Display = () => {
 
             if (isWorkshop) {
                 // Fetch orders for the workshop
-                response = await axios.get(process.env.REACT_APP_API_URL+`/workshops/${item.id}/orders`);
+                response = await axios.get(apiUrl+`/workshops/${item.id}/orders`);
             } else {
                 // Fetch orders for the encours
-                response = await axios.get(`${process.env.REACT_APP_API_URL}/encours/${item.id}/orders`);
+                response = await axios.get(`${apiUrl}/encours/${item.id}/orders`);
             }
 
             // Update modal data and display the modal

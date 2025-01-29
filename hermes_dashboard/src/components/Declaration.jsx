@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import apiUrl from '../api';
 const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
     const [selectedActivity, setSelectedActivity] = useState("");
     const [error, setError] = useState(null);
@@ -9,7 +9,7 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
     useEffect(() => {
         const fetchActivities = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/workshops/${workshopId}/activities`);
+                const response = await axios.get(`${apiUrl}/workshops/${workshopId}/activities`);
                 setActivities(response.data);
             } catch (error) {
                 console.error("Failed to fetch activities:", error);
@@ -28,7 +28,7 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
             console.log("nfc data", nfcData);
             console.log("order Data", orderData);
             // Envoi de la requête pour déclarer la prise en charge
-            await axios.post(process.env.REACT_APP_API_URL + "/supports", {
+            await axios.post(apiUrl + "/supports", {
                 orderId: orderData.id,
                 nfcTag: nfcData.nfcId,
                 activity: selectedActivity,

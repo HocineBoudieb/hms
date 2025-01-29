@@ -7,7 +7,7 @@ import ContentCutIcon from '@mui/icons-material/ContentCut';
 //import {Users} from 'lucide-react';
 import { useEffect,useState } from 'react';
 import axios from 'axios';
-
+import apiUrl from '../api';
 
 const Home= () => {
     const [stats, setStats] = useState([]);
@@ -15,7 +15,8 @@ const Home= () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const response = await axios.get(process.env.REACT_APP_API_URL+'/stats');
+                console.log("apiUrl",apiUrl);
+                const response = await axios.get(apiUrl+'/stats');
                 setStats(response.data);
             } catch (error) {
                 console.error('Failed to fetch stats:', error);

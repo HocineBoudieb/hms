@@ -6,6 +6,7 @@ import {
 } from '@mui/x-data-grid';
 import { Box, Typography, Tab, Tabs } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import apiUrl from 'api';
 
 const theme = createTheme({
     palette: {
@@ -30,7 +31,7 @@ const Tables = () => {
       try {
         setLoading(true);
         // Replace with your actual API endpoint to fetch data for a specific table
-        const response = await axios.get(process.env.API_URL+`/${table}`);
+        const response = await axios.get(apiUrl+`/${table}`);
         setTableData((prevData) => ({ ...prevData, [table]: response.data }));
       } catch (error) {
         console.error(`Error fetching data for table ${table}:`, error);
