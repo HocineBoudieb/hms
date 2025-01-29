@@ -26,6 +26,7 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
         }
         try {
             console.log("nfc data", nfcData);
+            console.log("order Data", orderData);
             // Envoi de la requête pour déclarer la prise en charge
             await axios.post(process.env.REACT_APP_API_URL + "/supports", {
                 orderId: orderData.id,

@@ -83,7 +83,7 @@ export async function checkForAnomalies(prisma) {
       });
       const lastEvent = events[0];
       const lastEvent_timestamp = new Date(lastEvent.timestamp);
-      console.log("last event timestamp", lastEvent_timestamp);
+      //console.log("last event timestamp", lastEvent_timestamp);
   
       if (lastEvent_timestamp < tenSecondsAgo) {
         ordersWithoutLocationAnomalies.push(order);

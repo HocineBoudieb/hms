@@ -64,6 +64,15 @@ export const createSupport = (prisma) => async (req, res) => {
         workshopId: Workshop.id,
       },
     });
+
+    await prisma.rfid.update({
+      where: {
+        rfidOrderId: order.rfidOrderId
+      },
+      data: {
+        workshopId: Workshop.id
+      }, 
+    });
     //Get artisan from artisan nfc
     const artisan_instance = await prisma.artisan.findFirst({
       where: {
@@ -75,7 +84,7 @@ export const createSupport = (prisma) => async (req, res) => {
         orderId: order.id,
         artisanId: artisan_instance.id,
         workshopId: Workshop.id,
-        activityId: activity,
+        activityId: parseInt(activity),
         startDate: new Date(),
         endDate: null,
       },

@@ -107,15 +107,13 @@ const Workshop = () => {
     };
 
     const handleSupport = async (orderId) => {
-
+        setSelectedOrder(orderId);
         if (selectedOrder === orderId && isLoadingNfc) {
             setIsLoadingNfc(false);
             setNfcError(null);
             await axios.post(`${process.env.REACT_APP_API_URL}/nfc/${id}/stop-scanning`);
             return;
         } 
-
-        setSelectedOrder(orderId);
         setIsLoadingNfc(true);
         setNfcError(null);
 
@@ -145,12 +143,12 @@ const Workshop = () => {
                     if (response.status === 200 && response.data.nfcId) {
                         // open the declare support modal and stop polling
                         setIsLoadingNfc(false);
-                        setSelectedOrder(null);
                         setNfcData(response.data);
 
                         // Notify the backend to stop scanning
                         await axios.post(`${process.env.REACT_APP_API_URL}/nfc/${id}/stop-scanning`);
                         setIsModalVisible(true);
+                        console.log("order data",  selectedOrder);
                     } 
                     else {
                         // Retry polling after a short delay
@@ -193,9 +191,14 @@ const Workshop = () => {
             <div className="flex flex-col w-full bg-[#f8f8f8] p-8">
                 {isModalVisible && (
                     <Declaration
-                        orderData={orders.find((order) => order.id === 1)}
+                        orderData={orders.find((order) => order.id === selectedOrder)}
                         nfcData={nfcData}
-                        onClose={() => setIsModalVisible(false)}
+                        onClose={() =>{
+                            setIsModalVisible(false);
+                            setSelectedOrder(null);
+                            setNfcData(null);
+                            window.location.reload();
+                        }}
                         workshopId={id}
                     />
                 )}
@@ -251,7 +254,7 @@ const Workshop = () => {
                                 {orders.filter(order => order.workshopId === workshop.id).map((order) => (
                                     <tr key={order.id}>
                                         <td className="px-3 py-4 whitespace-nowrap">{order.id}</td>
-                                        <td className="px-3 py-4 whitespace-nowrap">{order.product.material}</td>
+                                        <td className="px-3 py-4 whitespace-nowrap">{order.Product.material}</td>
                                         <td className="px-3 py-4 whitespace-nowrap">{order.trolley}</td>
                                         <td className="px-3 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours','minutes').toHuman()}</td>
                                     </tr>
