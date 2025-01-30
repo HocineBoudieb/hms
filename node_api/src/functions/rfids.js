@@ -187,7 +187,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
                         enCoursId: null,//Reset en-cours while exiting
                     },
                     });
-                    //if len of encours.Workshop is 0 so this is the last antenna, mark the order as done
+                    //if this is the last antenna, mark the order as done
                     if(enCours.id == 24){
                         await prisma.order.update({
                         where: { rfidOrderId: rfidorderId },

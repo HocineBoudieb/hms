@@ -58,6 +58,10 @@ const Workshop = () => {
             }
         };
         fetchWorkshop();
+
+        setInterval(() => {
+            fetchWorkshop();
+        }, 2000);
     }, [id]);
 
     useEffect(() => {
@@ -231,7 +235,7 @@ const Workshop = () => {
                                 {orders.filter(order => order.enCoursId === encours.id).map((order) => (
                                     <tr key={order.id} onClick={() => handleSupport(order.id)}>
                                         <td className="px-3 py-4 whitespace-nowrap">{order.id}</td>
-                                        <td className="px-3 py-4 whitespace-nowrap">{order.Product.material} {order.Product.color} {order.Product.option}</td>
+                                        <td className="px-3 py-4 whitespace-nowrap ">{order.Product.material} {order.Product.color} {order.Product.option}</td>
                                         <td className="px-3 py-4 whitespace-nowrap">{order.trolley}</td>
                                         <td className="px-3 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toHuman({ unitDisplay: "short" })}</td>
                                     </tr>
@@ -257,7 +261,7 @@ const Workshop = () => {
                                         <td className="px-3 py-4 whitespace-nowrap">{order.id}</td>
                                         <td className="px-3 py-4 whitespace-nowrap">{order.Product.material}</td>
                                         <td className="px-3 py-4 whitespace-nowrap">{order.trolley}</td>
-                                        <td className="px-3 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours','minutes').toHuman()}</td>
+                                        <td className="px-3 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toHuman({ unitDisplay: "short" })}</td>
                                     </tr>
                                 ))}
                                 

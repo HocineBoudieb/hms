@@ -128,10 +128,10 @@ const Alerts = () => {
                         <ul style={{ listStyleType: 'none', padding: 0 }}>
                             {alerts.slice(0, 5).map((alert) => (
                                 <li key={alert.id} style={{ marginBottom: '10px', backgroundColor: '#fff', padding: '10px', borderRadius: '4px' }}>
-                                    <strong>Order ID: {alert.orderId}</strong><br />
+                                    <strong>OF: {alert.orderId}</strong><br />
                                     Type: {alertTypeMap[alert.type] || `Unknown (${alert.type})`}<br />
-                                    Status: {alertStatusMap[alert.status] || `Unknown (${alert.status})`}<br />
-                                    Start: {new Date(alert.startDate).toLocaleString()}
+                                    Statut: {alertStatusMap[alert.status] || `Unknown (${alert.status})`}<br />
+                                    Date: {new Date(alert.startDate).toLocaleString()}
                                 </li>
                             ))}
                         </ul>
