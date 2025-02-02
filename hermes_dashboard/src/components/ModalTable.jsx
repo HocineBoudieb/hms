@@ -39,7 +39,7 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                     <TableCell>{row.trolley || 'N/A'}</TableCell>
                                     <TableCell>{row.Product.material} {row.Product.color} {row.Product.option}</TableCell>
                                     <TableCell>
-                                        {Duration.fromMillis(row.daysSinceCreation).shiftTo('hours','minutes').toHuman()}
+                                        {Duration.fromMillis(row.daysSinceCreation).shiftTo('hours','minutes').toHuman({unitDisplay: 'short'})}
                                     </TableCell>
                                 </TableRow>
                             ))}
