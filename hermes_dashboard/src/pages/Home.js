@@ -1,10 +1,16 @@
 // Desc: Home page of the dashboard site
 import StatCard from '../components/StatCard';
 import Display from '../components/Display';
-//import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+
+// Icons
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import PendingIcon from '@mui/icons-material/Pending';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ContentCutIcon from '@mui/icons-material/ContentCut';
-//import {Pen} from 'lucide-react';
-//import {Users} from 'lucide-react';
+import HourglassDisabledIcon from '@mui/icons-material/HourglassDisabled';
+import SellIcon from '@mui/icons-material/Sell';
+import EmojiPeopleIcon from '@mui/icons-material/EmojiPeople';
+
 import { useEffect,useState } from 'react';
 import axios from 'axios';
 import apiUrl from '../api';
@@ -33,8 +39,8 @@ const Home= () => {
     }, []);
 
     //const iconss = [Users, ErrorOutlineIcon, ContentCutIcon, ContentCutIcon, ErrorOutlineIcon, ErrorOutlineIcon];
-    const icons = [ContentCutIcon];
-    const icon_colors = ['#FF5733', '#FF8D1A', '#FFC300', '#FAF7A6', '#33FFBD', '#33FFBD'];
+    const icons = [AssignmentTurnedInIcon,PendingIcon,ContentCutIcon,ErrorOutlineIcon,HourglassDisabledIcon,SellIcon,EmojiPeopleIcon];
+    const icon_colors = ['#3FFFBE', 'orange', '#FF8D1A', '#FF5733', 'blue', '#A93FBD', '#338F11'];
     return (
         <div className="flex min-h-screen bg-[#f8f8f8] min-w-full">
             <div className='flex flex-col ml-64 mt-16'>
