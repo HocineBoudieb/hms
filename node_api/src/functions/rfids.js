@@ -189,13 +189,24 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
                     });
                     //if this is the last antenna, mark the order as done
                     if(enCours.id == 24){
+                        await prisma.rfidorder.update({
+                        where: { id: rfidorderId },
+                        data: {
+                            status: 0,
+                        },
+                        });
+                        await prisma.rfid.update({
+                            where: { rfidOrderId: rfidorderId },
+                            data: {
+                                rfidOrderId: null,
+                            }, 
+                        })
                         await prisma.order.update({
                         where: { rfidOrderId: rfidorderId },
                         data: {
                             status: 2,
                         },
                         });
-                        
                     }
                     else{
                         await prisma.order.update({

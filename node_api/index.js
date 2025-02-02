@@ -13,9 +13,12 @@ import { getAllSupports, createSupport } from "./src/functions/supports.js";
 import { getAllAlerts, getActiveAlerts } from "./src/functions/alerts.js";
 import { getAllStats } from "./src/functions/stats.js";
 import { getAllTimeEntries } from "./src/functions/time.js";
+import { getAllProducts, getProductById } from "./src/functions/products.js";
+import { getAllActivities, getActivityById } from "./src/functions/activities.js";
 
 //routines
 import { checkForAnomalies } from "./src/routines/alerts.js";   
+import { updateStats} from "./src/routines/stats.js";
 
 import express from "express";
 import cors from "cors";
@@ -53,6 +56,10 @@ app.get("/alerts", getAllAlerts(prisma));
 app.get("/alerts/active", getActiveAlerts(prisma));
 app.get("/stats", getAllStats(prisma));
 app.get("/time", getAllTimeEntries(prisma));
+app.get("/products", getAllProducts(prisma));
+app.get("/products/:id", getProductById(prisma));
+app.get("/activities", getAllActivities(prisma));
+app.get("/activities/:id", getActivityById(prisma));
 
 //***************POST REQUESTS***************
 app.post("/workshops", createWorkshop(prisma));
@@ -154,6 +161,7 @@ app.get("/nfc/:workshopId", async (req, res) => {
 //***************ROUTINES***************
 
 setInterval(() => checkForAnomalies(prisma), 5000);
+setInterval(() => updateStats(prisma), 5000);
 
 
 //***************SERVER***************

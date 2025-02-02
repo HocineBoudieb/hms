@@ -1,155 +1,209 @@
+//import helpers
 //****************************************************************
 //STATS MANAGEMENT
 //****************************************************************
 //function to convert timestamp difference to hour or minutes depending on the difference
   
-  async function calculate_time_in_encours(antennaRef){
-    //get encours with antenna which has reference antennaRef
-    const encours = await prisma.encours.findUnique({
+  export async function updateStats(prisma){
+    //Nombre d'OF finis
+    const finished_orders = await prisma.order.count({
       where: {
-        antenna: {
-          reference: antennaRef
-        }
-      }
-    });
-    //aggregate time in this encours
-    const aggregate_time_in_encours = await prisma.time.aggregate({
-      _sum: {
-        duration: true,
-      },
-      where: {
-        enCoursId: encours.id
+        status: 2,
       },
     });
-    const total_time_in_encours = aggregate_time_in_encours._sum.duration;
-    return total_time_in_encours
-  }
-  
-  /**
-   * Updates the average time in encours and workshops in the stats table
-   * by querying the time table and calculating the difference from the current value
-   * in the stats table.
-   */
-  async function update_Stats(){
-  
-    //Update Average time in encours, by getting total times in time table where enCoursId is not null
-    
-    const total_time_in_encours1 = await calculate_time_in_encours(1);
-    const total_time_in_encours2 = await calculate_time_in_encours(2);
-    const total_time_in_encours3 = await calculate_time_in_encours(3);
-    //get the current value in stats table
-    const current_total_time_in_encours1 = await prisma.stats.findUnique({
-      where: {
-        id: 6,
-      },
-    });
-    const current_total_time_in_encours2 = await prisma.stats.findUnique({
-      where: {
-        id: 7,
-      },
-    });
-    const current_total_time_in_encours3 = await prisma.stats.findUnique({
-      where: {
-        id: 8,
-      },
-    });
-    const current_total_time_in_encours_value1 = parseInt(current_total_time_in_encours1.value, 10);
-    const current_total_time_in_encours_value2 = parseInt(current_total_time_in_encours2.value, 10);
-    const current_total_time_in_encours_value3 = parseInt(current_total_time_in_encours3.value, 10);
-    //calculate the difference in percentage
-    let value_unit1 = timestampToBestUnit(total_time_in_encours1); //"X hours"
-    let value_unit2 = timestampToBestUnit(total_time_in_encours2); //"X hours"
-    let value_unit3 = timestampToBestUnit(total_time_in_encours3); //"X hours"
-    //check if current stat value is different from the new value
-    if(current_total_time_in_encours_value1 !== parseInt(value_unit1, 10))
-    {
-      const difference_encours1 = current_total_time_in_encours_value1 === 0 ? 0 : (parseInt(value_unit1, 10) - current_total_time_in_encours_value1) / current_total_time_in_encours_value1 * 100;
-      //update the stat table
-      await prisma.stats.update({
-        where: {
-          id: 6,
-        },
-        data: {
-          value: parseInt(value_unit1, 10),
-          change: Math.abs(difference_encours1),
-          unit: value_unit1.split(" ")[1],
-          isUp: difference_encours1 < 0 ? false : true,
-          lastTime: new Date(),
-        },
-      });
-    }
-    if(current_total_time_in_encours_value2 !== parseInt(value_unit2, 10))
-    {
-      const difference_encours2 = current_total_time_in_encours_value2 === 0 ? 0 : (parseInt(value_unit2, 10) - current_total_time_in_encours_value2) / current_total_time_in_encours_value2 * 100;
-      //update the stat table
-      await prisma.stats.update({
-        where: {
-          id: 7,
-        },
-        data: {
-          value: parseInt(value_unit2, 10),
-          change: Math.abs(difference_encours2),
-          unit: value_unit2.split(" ")[1],
-          isUp: difference_encours2 < 0 ? false : true,
-          lastTime: new Date(),
-        },
-      });
-    } 
-    if(current_total_time_in_encours_value3 !== parseInt(value_unit3, 10))
-    {
-      const difference_encours3 = current_total_time_in_encours_value3 === 0 ? 0 : (parseInt(value_unit3, 10) - current_total_time_in_encours_value3) / current_total_time_in_encours_value3 * 100;
-      //update the stat table
-      await prisma.stats.update({
-        where: {
-          id: 8,
-        },
-        data: {
-          value: parseInt(value_unit3, 10),
-          change: Math.abs(difference_encours3),
-          unit: value_unit3.split(" ")[1],
-          isUp: difference_encours3 < 0 ? false : true,
-          lastTime: new Date(),
-        },
-      });
-    }
-  
-  
-    //Update Average time in workshop, by getting total times in time table where workshopId is not null
-    const aggregate_time_in_workshop = await prisma.time.aggregate({
-      _sum: {
-        duration: true,
-      },
-      where: {
-        workshopId: {
-          not: null,
-        },
-      },
-    });
-    const total_time_in_workshop = aggregate_time_in_workshop._sum.duration;
-    //get the current value in stats table
-    const current_total_time_in_workshop = await prisma.stats.findUnique({
+    //update stat
+    const current_finished_orders = await prisma.stats.findUnique({
       where: {
         id: 1,
       },
     });
-    
-    const current_total_time_in_workshop_value = parseInt(current_total_time_in_workshop.value, 10);
-    value_unit = timestampToBestUnit(total_time_in_workshop);
-  
-    if(current_total_time_in_workshop.value !== parseInt(value_unit, 10))
-    { 
-      //calculate the difference in percentage
-      const difference_workshop = current_total_time_in_workshop_value === 0 ? 0 : Math.abs(((parseInt(timestampToBestUnit(total_time_in_workshop), 10) - current_total_time_in_workshop_value) / current_total_time_in_workshop_value) * 100);
-      
-      //update the stat table
+    const current_finished_orders_value = parseInt(current_finished_orders.value, 10);
+    if(current_finished_orders_value !== finished_orders){
+      //calculate the difference
+      const difference = finished_orders - current_finished_orders_value;
       await prisma.stats.update({
         where: {
           id: 1,
         },
         data: {
-          value: parseInt(value_unit, 10),
-          change: difference_workshop,
-          unit: value_unit.split(' ')[1]
+          value: finished_orders,
+          change: Math.abs(difference),
+          isUp: difference > 0,
+          lastTime: new Date(),
+        },
+      });
+    }
+    /***************************************************************/
+    //Nombre d'OF en cours
+    const en_cours_orders = await prisma.order.count({
+      where: {
+        enCoursId: {
+          not: null
+        }
+      },
+    });
+    //update stat
+    const current_en_cours_orders = await prisma.stats.findUnique({
+      where: {
+        id: 2,
+      },
+    });
+    const current_en_cours_orders_value = parseInt(current_en_cours_orders.value, 10);
+    if(current_en_cours_orders_value !== en_cours_orders){
+      //calculate the difference
+      const difference = en_cours_orders - current_en_cours_orders_value;
+      await prisma.stats.update({
+        where: {
+          id: 2,
+        },
+        data: {
+          value: en_cours_orders,
+          change: Math.abs(difference),
+          isUp: difference > 0,
+          lastTime: new Date(),
+        },
+      });
+    }
+    /***************************************************************/
+    //Nombre d'OFen workshop
+    const en_workshop_orders = await prisma.order.count({
+      where: {
+        workshopId: {
+          not: null
+        }
+      },
+    });
+    //update stat
+    const current_en_workshop_orders = await prisma.stats.findUnique({
+      where: {
+        id: 3,
+      },
+    });
+    const current_en_workshop_orders_value = parseInt(current_en_workshop_orders.value, 10);
+    if(current_en_workshop_orders_value !== en_workshop_orders){
+      //calculate the difference
+      const difference = en_workshop_orders - current_en_workshop_orders_value;
+      await prisma.stats.update({
+        where: {
+          id: 3,
+        },
+        data: {
+          value: en_workshop_orders,
+          change: Math.abs(difference),
+          isUp: difference > 0,
+          lastTime: new Date(),
+        },
+      });
+    }
+    /***************************************************************/
+    //Nombre d'alertes actives
+    const active_alerts = await prisma.alert.count({
+      where: {
+        status: 1,
+      },
+    });
+    //update stat
+    const current_active_alerts = await prisma.stats.findUnique({
+      where: {
+        id: 4,
+      },
+    });
+    const current_active_alerts_value = parseInt(current_active_alerts.value, 10);
+    if(current_active_alerts_value !== active_alerts){
+      //calculate the difference
+      const difference = active_alerts - current_active_alerts_value;
+      await prisma.stats.update({
+        where: {
+          id: 4,
+        },
+        data: {
+          value: active_alerts,
+          change: Math.abs(difference),
+          isUp: difference > 0,
+          lastTime: new Date(),
+        },
+      });
+    } 
+    /***************************************************************/
+    //Nombre d'OF inactifs
+    const inactive_orders = await prisma.order.count({
+      where: {
+        status: 0,
+      },
+    });
+    //update stat
+    const current_inactive_orders = await prisma.stats.findUnique({
+      where: {
+        id: 5,
+      },
+    });
+    const current_inactive_orders_value = parseInt(current_inactive_orders.value, 10);
+    if(current_inactive_orders_value !== inactive_orders){
+      //calculate the difference
+      const difference = inactive_orders - current_inactive_orders_value;
+      await prisma.stats.update({
+        where: {
+          id: 5,
+        },
+        data: {
+          value: inactive_orders,
+          change: Math.abs(difference),
+          isUp: difference > 0,
+          lastTime: new Date(),
+        },
+      });
+    }
+    /***************************************************************/
+    //Nombre de chariots disponibles rfid with no rfidorderid
+    const available_rfid = await prisma.rfid.count({
+      where: {
+        rfidOrderId: null,
+      },
+    });
+    //update stat
+    const current_available_rfid = await prisma.stats.findUnique({
+      where: {
+        id: 6,
+      },
+    });
+    const current_available_rfid_value = parseInt(current_available_rfid.value, 10);
+    if(current_available_rfid_value !== available_rfid){
+      //calculate the difference
+      const difference = available_rfid - current_available_rfid_value;
+      await prisma.stats.update({
+        where: {
+          id: 6,
+        },
+        data: {
+          value: available_rfid,
+          change: Math.abs(difference),
+          isUp: difference > 0,
+          lastTime: new Date(),
+        },
+      });
+    }
+    /***************************************************************/
+    //Nombre d'artisans
+    const artisans = await prisma.artisan.count();
+    //update stat
+    const current_artisans = await prisma.stats.findUnique({
+      where: {
+        id: 7,
+      },
+    });
+    const current_artisans_value = parseInt(current_artisans.value, 10);
+    if(current_artisans_value !== artisans){
+      //calculate the difference
+      const difference = artisans - current_artisans_value;
+      await prisma.stats.update({
+        where: {
+          id: 7,
+        },
+        data: {
+          value: artisans,
+          change: Math.abs(difference),
+          isUp: difference > 0,
+          lastTime: new Date(),
         },
       });
     }

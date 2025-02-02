@@ -1,10 +1,11 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard , Settings, Siren, Table  } from 'lucide-react';
+import { LayoutDashboard , Settings, Siren, Table, ChartColumnIncreasing  } from 'lucide-react';
 import ImageFile from '../assets/logo.png';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Accueil', path: '/' },
+  {icon: ChartColumnIncreasing, label: 'Metriques', path: '/metrics'},
   { icon: Table , label: 'Toutes les tables', path: '/tables' },
   { icon: Siren, label: 'Alertes', path: '/alerts' },
   { icon: Settings, label: 'Parametres', path: '/settings' },

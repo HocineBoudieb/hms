@@ -6,6 +6,8 @@ import Tables from './pages/Tables';
 import Alerts from './pages/Alerts';
 import Settings from './pages/Settings';
 import Workshop from './pages/Workshop';
+import Metrics from 'pages/Metrics';
+
 import apiUrl from './api';
 function App() {
   console.log("API URL:", apiUrl);
@@ -25,6 +27,7 @@ function App() {
                   <Route path="/tables" element={<Tables />} />
                   <Route path="/alerts" element={<Alerts />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path='/metrics' element={<Metrics />} />
                 </Routes>
               </div>
             </div>

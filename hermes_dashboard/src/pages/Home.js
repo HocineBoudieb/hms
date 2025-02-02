@@ -26,7 +26,7 @@ const Home= () => {
         fetchStats();
 
         //fetch every minute
-        const interval = setInterval(fetchStats, 60000);
+        const interval = setInterval(fetchStats, 5000);
 
         //clear Timer when component unmount
         return () => clearInterval(interval);
@@ -54,7 +54,8 @@ const Home= () => {
                             isIncrease={stat.isUp}
                             iconColor={icon_colors[i]} 
                             unit={stat.unit} 
-                            color={stat.value === 0 ? 'black' : (stat.isUp ? (stat.right ? 'green' : 'red') : (stat.right ? 'red' : 'green'))} 
+                            color={stat.value === 0 ? 'black' : (stat.isUp ? (stat.right ? 'green' : 'red') : (stat.right ? 'red' : 'green'))}
+                            date={stat.lastTime}  
                         />
                     ))}
                 </div>
