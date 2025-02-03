@@ -234,10 +234,10 @@ const Workshop = () => {
                                 {/* Map over encours orders */}
                                 {orders.filter(order => order.enCoursId === encours.id).map((order) => (
                                     <tr key={order.id} onClick={() => handleSupport(order.id)}>
-                                        <td className="px-3 py-4 whitespace-nowrap">{order.id}</td>
-                                        <td className="px-3 py-4 whitespace-nowrap ">{order.Product.material} {order.Product.color} {order.Product.option}</td>
-                                        <td className="px-3 py-4 whitespace-nowrap">{order.trolley}</td>
-                                        <td className="px-3 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toHuman({ unitDisplay: "short" })}</td>
+                                        <td className="px-3 py-4 whitespace-normal">{order.id}</td>
+                                        <td className="px-3 py-4 whitespace-normal ">{order.Product.material} {order.Product.color} {order.Product.option}</td>
+                                        <td className="px-3 py-4 whitespace-normal">{order.trolley}</td>
+                                        <td className="px-3 py-4 whitespace-normal">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toHuman({ unitDisplay: "short" })}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -258,14 +258,12 @@ const Workshop = () => {
                                 {/* Map over workshop orders and filter for workshop id is id*/}
                                 {orders.filter(order => order.workshopId === workshop.id).map((order) => (
                                     <tr key={order.id}>
-                                        <td className="px-3 py-4 whitespace-nowrap">{order.id}</td>
-                                        <td className="px-3 py-4 whitespace-nowrap">{order.Product.material}</td>
-                                        <td className="px-3 py-4 whitespace-nowrap">{order.trolley}</td>
-                                        <td className="px-3 py-4 whitespace-nowrap">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toHuman({ unitDisplay: "short" })}</td>
+                                        <td className="px-3 py-4 whitespace-normal">{order.id}</td>
+                                        <td className="px-3 py-4 whitespace-normal">{order.Product.material}</td>
+                                        <td className="px-3 py-4 whitespace-normal">{order.trolley}</td>
+                                        <td className="px-3 py-4 whitespace-normal">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toHuman({ unitDisplay: "short" })}</td>
                                     </tr>
                                 ))}
-                                
-                                
                             </tbody>
                         </table>
                     </div>

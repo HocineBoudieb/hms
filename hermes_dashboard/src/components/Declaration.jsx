@@ -77,8 +77,8 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
                         ))}
                     </select>
                     {selectedActivity && (
-                    <p className="mt-2 text-sm text-gray-600">
-                        <strong>Description :</strong>{console.log(selectedActivity)}
+                    <p className="mt-2 text-sm text-red-600">
+                        <strong>Enlevez le chevalet avant de déclarer.</strong>{console.log(selectedActivity)}
                     </p>
                     )}
                 </div>
