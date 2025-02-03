@@ -43,12 +43,13 @@ export const getAllOrders = (prisma) => async (req, res) => {
         });
         return {
           ...order,
-          trolley: rfid.trolley,
+          trolley: rfid?.trolley,
         };
       })
     );
     res.json(ordersWithTrolley);
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: "Failed to fetch orders." });
   }
 };

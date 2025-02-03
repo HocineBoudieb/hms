@@ -5,6 +5,7 @@
  */
 export const getAllAlerts = (prisma) => async (req, res) => {
     try{
+        console.log('test');
         const alerts = await prisma.alert.findMany(
           {
             include: {
@@ -21,12 +22,14 @@ export const getAllAlerts = (prisma) => async (req, res) => {
             });
             return {
               ...alert,
-              trolley: trolley.trolley,
+              trolley: trolley?.trolley,
             };
           })
         );
+        console.log(alertsWithTrolley);
         res.json(alertsWithTrolley);
     }catch (error) {
+        console.log(error);
         res.status(500).json({error: "Failed to fetch alerts"});
     }
   };
