@@ -147,7 +147,7 @@ const Metrics = () => {
                                             <TableCell className="py-3 text-gray-600 border-b border-gray-100">{product.material}</TableCell>
                                             <TableCell className="py-3 text-gray-600 border-b border-gray-100">{product.color}</TableCell>
                                             <TableCell className="py-3 text-gray-600 border-b border-gray-100">{product.option}</TableCell>
-                                            <TableCell className="py-3 text-gray-600 border-b border-gray-100">{product.averagePrdDuration?.toFixed(2) || 'N/A'}</TableCell>
+                                            <TableCell className="py-3 text-gray-600 border-b border-gray-100">{product.averagePrdDuration ? Duration.fromMillis(product.averagePrdDuration).toFormat("hh:mm:ss") : 'N/A'}</TableCell>
                                             <TableCell className="py-3 text-gray-600 border-b border-gray-100">
                                                 {expandedRow === `product-${product.id}` ? <ExpandLess className="text-gray-500" /> : <ExpandMore className="text-gray-500" />}
                                             </TableCell>
@@ -167,7 +167,7 @@ const Metrics = () => {
                                                                 {(orders[`product-${product.id}`] || []).map(order => (
                                                                     <TableRow key={order.id} className="hover:bg-orange-100 transition-colors duration-200">
                                                                         <TableCell className="py-2 text-gray-600 border-b border-gray-100">{order.id}</TableCell>
-                                                                        <TableCell className="py-2 text-gray-600 border-b border-gray-100">{order.traversalTime?.toFixed(2) || 'N/A'}</TableCell>
+                                                                        <TableCell className="py-2 text-gray-600 border-b border-gray-100">{order.traversalTime ? Duration.fromMillis(order.traversalTime).toFormat("hh:mm:ss") : 'N/A'}</TableCell>
                                                                     </TableRow>
                                                                 ))}
                                                             </TableBody>

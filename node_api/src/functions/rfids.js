@@ -76,6 +76,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
             },
             });
             const currentRfidsList = currentRfids.map(rfid => rfid.id);
+            console.log("currentRfidsList",currentRfidsList);
             const enteredRfids = detectedRfids.filter(rfidId => !currentRfidsList.includes(rfidId));
             const exitedRfids = currentRfidsList.filter(rfidId => !detectedRfids.includes(rfidId));
             console.log("exitedRfids",exitedRfids,"enteredRfids",enteredRfids);
@@ -189,7 +190,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
                     });
                     //if this is the last antenna, mark the order as done
                     if(enCours.id == 24){
-                        await prisma.rfidorder.update({
+                        await prisma.rfidOrder.update({
                         where: { id: rfidorderId },
                         data: {
                             status: 0,
@@ -205,6 +206,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
                         where: { rfidOrderId: rfidorderId },
                         data: {
                             status: 2,
+                            enCoursId: null,
                             endDate: new Date(),
                         },
                         });

@@ -22,7 +22,7 @@ export const getAllProducts = (prisma) => async (req, res) => {
                 meanTime = meanTime ? meanTime / count : 0;
                 return {
                     ...product,
-                    meanTime,
+                    averagePrdDuration: meanTime,
                 };
             })
         );
