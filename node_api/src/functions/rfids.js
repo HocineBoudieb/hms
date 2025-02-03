@@ -205,6 +205,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
                         where: { rfidOrderId: rfidorderId },
                         data: {
                             status: 2,
+                            endDate: new Date(),
                         },
                         });
                     }

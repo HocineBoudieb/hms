@@ -5,8 +5,27 @@
  */
 export const getAllAlerts = (prisma) => async (req, res) => {
     try{
-        const alerts = await prisma.alert.findMany();
-        res.json(alerts);
+        const alerts = await prisma.alert.findMany(
+          {
+            include: {
+              Order: true,
+            },
+          }
+        );
+        const alertsWithTrolley = await Promise.all(
+          alerts.map(async (alert) => {
+            const trolley = await prisma.rfid.findFirst({
+              where: {
+                rfidOrderId: alert.Order.rfidOrderId,
+              },
+            });
+            return {
+              ...alert,
+              trolley: trolley.trolley,
+            };
+          })
+        );
+        res.json(alertsWithTrolley);
     }catch (error) {
         res.status(500).json({error: "Failed to fetch alerts"});
     }

@@ -97,14 +97,14 @@ const Metrics = () => {
                                                     <TableContainer component={Paper} className="mt-2 shadow-inner rounded-lg border border-gray-100">
                                                         <Table>
                                                             <TableHead>
-                                                                <TableRow className="bg-gray-50">
+                                                                <TableRow className="bg-orange-50">
                                                                     <TableCell className="font-semibold text-gray-700 py-2">ID de l'Ordre</TableCell>
                                                                     <TableCell className="font-semibold text-gray-700 py-2">Temps de Prise en Charge (heures)</TableCell>
                                                                 </TableRow>
                                                             </TableHead>
                                                             <TableBody>
                                                                 {(orders[`activity-${activity.id}`] || []).map((order, index) => (
-                                                                    <TableRow key={index} className="hover:bg-gray-50 transition-colors duration-200">
+                                                                    <TableRow key={index} className="hover:bg-orange-100 transition-colors duration-200">
                                                                         <TableCell className="py-2 text-gray-600 border-b border-gray-100">{order.id}</TableCell>
                                                                         <TableCell className="py-2 text-gray-600 border-b border-gray-100">
                                                                             {order.traversalTime
@@ -158,14 +158,14 @@ const Metrics = () => {
                                                     <TableContainer component={Paper} className="mt-2 shadow-inner rounded-lg border border-gray-100">
                                                         <Table>
                                                             <TableHead>
-                                                                <TableRow className="bg-gray-50">
+                                                                <TableRow className="bg-orange-50">
                                                                     <TableCell className="font-semibold text-gray-700 py-2">ID de l'Ordre</TableCell>
                                                                     <TableCell className="font-semibold text-gray-700 py-2">Temps de traversée (heures)</TableCell>
                                                                 </TableRow>
                                                             </TableHead>
                                                             <TableBody>
                                                                 {(orders[`product-${product.id}`] || []).map(order => (
-                                                                    <TableRow key={order.id} className="hover:bg-gray-50 transition-colors duration-200">
+                                                                    <TableRow key={order.id} className="hover:bg-orange-100 transition-colors duration-200">
                                                                         <TableCell className="py-2 text-gray-600 border-b border-gray-100">{order.id}</TableCell>
                                                                         <TableCell className="py-2 text-gray-600 border-b border-gray-100">{order.traversalTime?.toFixed(2) || 'N/A'}</TableCell>
                                                                     </TableRow>

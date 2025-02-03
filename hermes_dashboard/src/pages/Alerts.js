@@ -1,19 +1,21 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Doughnut } from "react-chartjs-2";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+
 //import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import apiUrl from '../api';
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const alertTypeMap = {
-    1: "Exist in two localisation",
-    2: "Exit an en-cours without support",
+    1: "Oubli dans un en-cours",
+    2: "Enlever d'un en-cours sans prise en charge",
     3: "Test"
 };
 
 const alertStatusMap = {
-    0: "Resolved",
+    0: "Résolu",
     1: "Active"
 };
 
@@ -137,6 +139,37 @@ const Alerts = () => {
                         </ul>
                     </div>
                 </div>
+            </div>
+
+            <div className="flex flex-col ml-64 mt-16">
+                <h2 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] mb-8">Alertes actives
+                <span style={{ color: 'red', marginLeft: '10px' }}>
+                        <span style={{ fontSize: '20px', marginRight: '10px' }}>&#x25cf;</span>
+                        <span style={{ fontWeight: 'bold' }}>En direct</span>
+                    </span>
+                </h2>
+                <TableContainer component={Paper}>
+                    <Table>
+                    <TableHead>
+                        <TableRow>
+                        <TableCell>Chevalet</TableCell>
+                        <TableCell>Type</TableCell>
+                        <TableCell>Statut</TableCell>
+                        <TableCell>Date de début</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {alerts.filter(alert => alert.status === 1).map(alert => (
+                        <TableRow key={alert.id}>
+                            <TableCell>{alert.trolley}</TableCell>
+                            <TableCell>{alertTypeMap[alert.type]}</TableCell>
+                            <TableCell>{alertStatusMap[alert.status]}</TableCell>
+                            <TableCell>{new Date(alert.startDate).toLocaleString('fr-FR')}</TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                    </Table>
+                </TableContainer>
             </div>
         </div>
     );
