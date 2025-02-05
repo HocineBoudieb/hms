@@ -283,7 +283,7 @@ const Workshop = () => {
                     value={selectedTrolleyId || ''}
                     onChange={(e) => setSelectedTrolleyId(e.target.value)}
                     >
-                <option value="">Choisissez un chariot</option>
+                <option value="">Choisissez un chevalet</option>
                 {trolley.map((t) => (
                     <option key={t.id} value={t.id}>
                     {t.trolley}

@@ -14,6 +14,7 @@ export const getAllOrders = (prisma) => async (req, res) => {
         RfidOrder: true,
         Product: true,
         Alert: true,
+        Time: true,
         Support: {
           orderBy: {
             startDate: 'desc',

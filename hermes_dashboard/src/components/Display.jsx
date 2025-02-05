@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ImageWS from '../assets/workshop.png';
 import ImageEC from '../assets/encours.png';
+import ImageQC from '../assets/quality.png';
 import ModalTable from './ModalTable';
 import apiUrl from '../api';
 
@@ -48,11 +49,10 @@ const Display = () => {
 
         //fetch every 2 seconds
         const interval = setInterval(fetchEncours, 2000);
-
         //clear Timer when component unmount
         return () => clearInterval(interval);
 
-    }, []);
+    }, [encours]);
 
     const handleClick = async (item) => {
         try {
@@ -83,7 +83,7 @@ const Display = () => {
                 const encoursItem = encours.find((item) => item.id === workshop.EnCours.id);
 
                 return (
-                    <div className="flex flex-col items-center w-1/4" key={workshop.id}>
+                    <div className="flex flex-col items-center w-1/5" key={workshop.id}>
                         <p className="text-1xl first-letter:text-2xl font-thin tracking-[0.1em] ml-8">{workshop.name}</p>
                         <div className="relative w-full flex flex-row items-center">
                             {/* First Image (EnCours) */}
@@ -107,6 +107,19 @@ const Display = () => {
                     </div>
                 );
             })}
+            {/*Last encours*/}
+            <div className="flex flex-col items-center w-1/6">
+                <p className="text-1xl first-letter:text-2xl font-thin tracking-[0.1em] ml-8">Qualité</p>
+                <div className="relative w-full flex flex-row items-center">
+                    {/* First Image (EnCours) */}
+                    <div className="relative w-full">
+                        <img src={ImageQC} alt={`En Cours`} className="w-full rounded-lg" />
+                        <div className="absolute top-2 right-2 bg-orange-500 text-white text-base font-bold px-4 py-3 rounded-full shadow-lg" onClick={() => handleClick(encours.find((item) => item.id === 24))}>
+                            {encours.find((item) => item.id === 24)?.Order.length}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {/* Modal */}
             <ModalTable isModalVisible={isModalVisible} modalData={modalData} setIsModalVisible={setIsModalVisible} />
