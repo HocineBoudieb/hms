@@ -37,7 +37,7 @@ const Header = () => {
     fetchAlerts();
 
     //fetch every minute
-    const interval = setInterval(fetchAlerts, 60000);
+    const interval = setInterval(fetchAlerts, 10000);
 
     //clear Timer when component unmount
     return () => clearInterval(interval);

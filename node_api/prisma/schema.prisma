@@ -43,6 +43,7 @@ model EnCours {
 model Order {
   id        Int        @id @default(autoincrement())
   status    Int
+  priority  String?    @default("medium")
   startDate DateTime
   endDate   DateTime?
   enCoursId Int?

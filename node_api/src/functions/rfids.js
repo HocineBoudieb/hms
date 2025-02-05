@@ -110,7 +110,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
                 await prisma.support.update({
                     where: { id: supportId },
                     data: {
-                    endDate: new Date(timestamp),
+                    endDate: new Date(),
                     },
                 })
                 //get last event timestamp
@@ -129,7 +129,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
                 data: {
                     orderId: order.id,
                     enCoursId: enCours.id,
-                    timestamp: new Date(timestamp),
+                    timestamp: new Date(),
                     eventType: 1, // 1 for "come"
                 },
                 });
@@ -178,7 +178,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
                     data: {
                         orderId: order.id,
                         enCoursId: enCours.id,
-                        timestamp: new Date(timestamp),
+                        timestamp: new Date(),
                         eventType: 0, // 0 for "quit"
                     },
                     });

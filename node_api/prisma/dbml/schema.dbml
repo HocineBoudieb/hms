@@ -33,6 +33,7 @@ Table EnCours {
 Table Order {
   id Int [pk, increment]
   status Int [not null]
+  priority String [default: 'medium']
   startDate DateTime [not null]
   endDate DateTime
   enCoursId Int

@@ -28,6 +28,7 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                 <TableCell>Chevalet</TableCell>
                                 <TableCell>Produit</TableCell>
                                 <TableCell>Depuis</TableCell>
+                                <TableCell>Priorité</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -39,8 +40,9 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                     <TableCell>{row.trolley || 'N/A'}</TableCell>
                                     <TableCell>{row.Product.material} {row.Product.color} {row.Product.option}</TableCell>
                                     <TableCell>
-                                        {Duration.fromMillis(row.daysSinceCreation).shiftTo('hours','minutes').toHuman({unitDisplay: 'short'})}
+                                        {Duration.fromMillis(row.daysSinceCreation).shiftTo('hours').toFormat("h 'h,' m 'm'")}
                                     </TableCell>
+                                    <TableCell> <span className={row.priority === 'medium' ? 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-orange-300' : (row.priority === 'urgent' ? 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-red-300' : 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-green-300') }>{row.priority}</span></TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

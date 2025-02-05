@@ -51,7 +51,6 @@ const Workshop = () => {
                     
                 }
                 const response = await axios.get(apiUrl+'/orders');
-                console.log("data", response.data);
                 setOrders(response.data);
             } catch (error) {
                 console.error("Failed to fetch workshop:", error);
@@ -84,7 +83,6 @@ const Workshop = () => {
         const fetchTrolley = async () => {
             try {
                 const response = await axios.get(`${apiUrl}/rfids/trolleys`);
-                console.log("trolley", response.data);
                 setTrolley(response.data);
             } catch (error) {
                 console.error('Failed to fetch trolley:', error);
@@ -220,7 +218,7 @@ const Workshop = () => {
                 )}
                 <div className="flex flex-row w-full">
                     <div className="flex flex-col h-full w-1/2 bg-white shadow p-8 m-4 rounded-lg">
-                        <h2 className="text-2xl font-semibold mb-4">OF EnCours</h2>
+                        <h2 className="text-2xl font-semibold mb-4">OF En-Attente</h2>
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr>
@@ -233,11 +231,11 @@ const Workshop = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {/* Map over encours orders */}
                                 {orders.filter(order => order.enCoursId === encours.id).map((order) => (
-                                    <tr key={order.id} onClick={() => handleSupport(order.id)}>
+                                    <tr key={order.id} onClick={() => handleSupport(order.id)} className={order.priority === 'medium' ? 'bg-orange-50' : (order.priority === 'urgent' ? 'bg-red-50' : '') }>
                                         <td className="px-3 py-4 whitespace-normal">{order.id}</td>
                                         <td className="px-3 py-4 whitespace-normal ">{order.Product.material} {order.Product.color} {order.Product.option}</td>
                                         <td className="px-3 py-4 whitespace-normal">{order.trolley}</td>
-                                        <td className="px-3 py-4 whitespace-normal">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toHuman({ unitDisplay: "short" })}</td>
+                                        <td className="px-3 py-4 whitespace-normal">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toFormat("h 'h,' m 'm'")}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -261,7 +259,7 @@ const Workshop = () => {
                                         <td className="px-3 py-4 whitespace-normal">{order.id}</td>
                                         <td className="px-3 py-4 whitespace-normal">{order.Product.material}</td>
                                         <td className="px-3 py-4 whitespace-normal">{order.trolley}</td>
-                                        <td className="px-3 py-4 whitespace-normal">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toHuman({ unitDisplay: "short" })}</td>
+                                        <td className="px-3 py-4 whitespace-normal">{Duration.fromMillis(order.daysSinceCreation).shiftTo('hours').toFormat("h 'h,' m 'm'")}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -316,6 +314,7 @@ const Workshop = () => {
                         <tr>
                             <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identifiant</th>
                             <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priorité</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -323,6 +322,9 @@ const Workshop = () => {
                             <tr key={order.id} onClick={() => handleOrderClick(order.id)}>
                                 <td className="px-6 py-4 whitespace-nowrap">{order.id}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{order.Product.material} {order.Product.color} {order.Product.option}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className={order.priority === 'medium' ? 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-orange-300' : (order.priority === 'urgent' ? 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-red-300' : 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-green-300') }>{order.priority}</span>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
