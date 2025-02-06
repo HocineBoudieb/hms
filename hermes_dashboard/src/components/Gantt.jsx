@@ -79,7 +79,7 @@ const GanttChart = ({ orders }) => {
         <div className="w-full max-w-5xl mx-auto p-6 bg-white shadow-md rounded-lg">
             <h2 className="text-xl font-bold mb-4">Suivi de la performance site</h2>
             {processedOrders.map(order => (
-                <div key={order.id} className="mb-6 p-4 border rounded-lg bg-gray-50">
+                <div key={order.id} className="mb-6 p-4 border rounded-lg bg-gray-50 w-1/2">
                     <h3 className="font-semibold">Ordre {order.id}</h3>
                     <div
                         className="flex items-center mt-2 h-10 relative bg-gray-200 rounded-md overflow-hidden"

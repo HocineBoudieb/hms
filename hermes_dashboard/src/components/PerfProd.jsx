@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { Duration } from 'luxon';
-import { max } from 'date-fns';
 
 const GanttChartByProduct = ({ orders }) => {
   /**
@@ -67,74 +66,116 @@ const GanttChartByProduct = ({ orders }) => {
     return result;
   }, [orders]);
 
+  // Calcul du maximum global de la somme des moyennes pour pouvoir scaler les segments
+  const maxTotalAverage = useMemo(() => {
+    let max = 0;
+    Object.keys(productAverages).forEach((productId) => {
+      const averages = productAverages[productId];
+      const totalAverage =
+        Object.values(averages.enCours).reduce((acc, d) => acc + d.average, 0) +
+        Object.values(averages.workshops).reduce((acc, d) => acc + d.average, 0);
+      if (totalAverage > max) {
+        max = totalAverage;
+      }
+    });
+    return max;
+  }, [productAverages]);
+
   // État pour gérer l'affichage d'une info-bulle lors du hover sur un segment
   const [hoveredInfo, setHoveredInfo] = useState(null);
 
   return (
-    <div className="container mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">
-        Gantt Chart par Produit (En-Cours et Workshop en Séquence)
-      </h2>
+    <div className="flex flex-col w-3/4 bg-[#f8f8f8] p-8 mt-4 ml-64 overflow-x-hidden">
       {Object.entries(productAverages).map(([productId, averages]) => {
-        // Pour afficher les informations du produit, on récupère le premier ordre correspondant
+        // Récupérer les infos du produit à partir du premier ordre trouvé
         const productOrder = orders.find((o) => o.Product.id.toString() === productId);
         const product = productOrder.Product;
 
         // Constitution d'un tableau de segments :
-        // - D'abord les segments en-cours
-        // - Puis les segments workshop
+        // - D'abord les segments en-cours (nommés "En-Attente")
+        // - Puis les segments workshop (nommés "Atelier")
         let segments = [
           ...Object.entries(averages.enCours).map(([id, data]) => ({
-            type: 'En-Cours',
+            type: 'En-Attente',
             id,
             average: data.average,
           })),
           ...Object.entries(averages.workshops).map(([id, data]) => ({
-            type: 'Workshop',
+            type: 'Atelier',
             id,
             average: data.average,
           })),
         ];
 
-        // Tri optionnel : ici on place d'abord les en-cours, puis les workshops (triés par identifiant)
+        // Tri des segments : on place d'abord les "En-Attente", puis les "Atelier", triés par identifiant
         segments.sort((a, b) => {
           if (a.type === b.type) {
             return parseInt(a.id) - parseInt(b.id);
           }
-          return a.type === 'En-Cours' ? -1 : 1;
+          return a.type === 'En-Attente' ? -1 : 1;
         });
 
-        // Calcul de la durée moyenne totale pour le produit (somme de toutes les moyennes)
-        const totalAverage = segments.reduce((acc, seg) => acc + seg.average, 0);
+        // Calcul du temps total pour chaque type
+        const totalAtelier = segments
+          .filter((seg) => seg.type === 'Atelier')
+          .reduce((acc, seg) => acc + seg.average, 0);
+        const totalEnAttente = segments
+          .filter((seg) => seg.type === 'En-Attente')
+          .reduce((acc, seg) => acc + seg.average, 0);
+
+        // Formatage des durées avec Luxon
+        const formattedAtelier = Duration.fromMillis(totalAtelier)
+          .shiftTo('hours', 'minutes')
+          .toFormat("h 'h,' m 'm'");
+        const formattedEnAttente = Duration.fromMillis(totalEnAttente)
+          .shiftTo('hours', 'minutes')
+          .toFormat("h 'h,' m 'm'");
+
+        // Somme totale pour le produit (utilisée pour déterminer si on affiche le graphique)
+        const productTotalAverage = segments.reduce((acc, seg) => acc + seg.average, 0);
 
         return (
-          <div key={productId} className="mb-8 border p-4 rounded-lg bg-gray-50">
-            <h3 className="text-xl font-bold mb-2">
-              Produit : {product.material} {product.color} {product.option}
-            </h3>
-            {totalAverage > 0 ? (
-              <div className="flex items-center h-10 relative bg-gray-200 rounded-md overflow-hidden">
-                {segments.map((seg, index) => (
-                  <div
-                    key={index}
-                    className={`h-full cursor-pointer border-r border-white ${
-                      seg.type === 'En-Cours' ? 'bg-red-400' : 'bg-blue-400'
-                    }`}
-                    style={{ width: `${Math.max(2, (seg.average / totalAverage) * 100)}%` }}
-                    onMouseEnter={() =>
-                      setHoveredInfo({
-                        type: seg.type,
-                        id: seg.id,
-                        average: seg.average,
-                      })
-                    }
-                    onMouseLeave={() => setHoveredInfo(null)}
-                  ></div>
-                ))}
-              </div>
-            ) : (
-              <p className="italic text-sm">Aucune donnée pour ce produit.</p>
-            )}
+          <div key={productId} className="mb-8 flex space-x-4">
+            {/* Card récapitulative à gauche */}
+            <div className="w-1/3 p-4 border rounded-lg bg-white shadow-md">
+              <h4 className="text-lg font-bold mb-2">Récapitulatif</h4>
+              <p>
+                <strong>Temps en atelier :</strong> {formattedAtelier}
+              </p>
+              <p>
+                <strong>Temps d'attente :</strong> {formattedEnAttente}
+              </p>
+            </div>
+
+            {/* Card du produit et graphique à droite */}
+            <div className="w-2/3 border p-4 rounded-lg bg-white shadow-md">
+              <h3 className="text-xl font-bold mb-2">
+                Produit : {product.material} {product.color} {product.option}
+              </h3>
+              {productTotalAverage > 0 ? (
+                <div className="flex items-center h-10 relative bg-gray-200 rounded-md overflow-hidden">
+                  {segments.map((seg, index) => (
+                    <div
+                      key={index}
+                      className={`h-full cursor-pointer border-r border-white ${
+                        seg.type === 'En-Attente' ? 'bg-orange-400' : 'bg-blue-400'
+                      }`}
+                      style={{ width: `${Math.max(2, (seg.average / maxTotalAverage) * 100)}%` }}
+                      onMouseEnter={() =>
+                        setHoveredInfo({
+                          type: seg.type,
+                          id: seg.id,
+                          average: seg.average,
+                        })
+                      }
+                      onMouseLeave={() => setHoveredInfo(null)}
+                    ></div>
+                  ))}
+                </div>
+              ) : (
+                <p className="italic text-sm">Aucune donnée pour ce produit.</p>
+              )}
+            </div>
           </div>
         );
       })}

@@ -22,10 +22,14 @@ const PerformanceTracking = () => {
     }, []);
 
     return (
-        <div className="flex flex-col w-full bg-[#f8f8f8] p-8 mt-16 ml-64">
-            <h1>Performance Tracking</h1>
-            <GanttChartByProduct orders={orders} />
-        </div>
+           <div className="flex flex-col">
+                <div className="mt-16 ml-64">
+                    <h1 className="text-2xl first-letter:text-4xl font-thin tracking-[0.2em] ml-8 mt-8">
+                        PERFORMANCES PAR PRODUIT
+                    </h1>
+                </div>
+                <GanttChartByProduct orders={orders} />
+            </div>
     );
 }
 
