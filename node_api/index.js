@@ -15,7 +15,7 @@ import { getAllStats } from "./src/functions/stats.js";
 import { getAllTimeEntries } from "./src/functions/time.js";
 import { getAllProducts, getProductById } from "./src/functions/products.js";
 import { getAllActivities, getActivityById } from "./src/functions/activities.js";
-
+import { getStdTimes } from "./src/functions/stdtime.js";
 //routines
 import { checkForAnomalies } from "./src/routines/alerts.js";   
 import { updateStats} from "./src/routines/stats.js";
@@ -60,6 +60,7 @@ app.get("/products", getAllProducts(prisma));
 app.get("/products/:id", getProductById(prisma));
 app.get("/activities", getAllActivities(prisma));
 app.get("/activities/:id", getActivityById(prisma));
+app.get("/stdtime",getStdTimes(prisma));
 
 //***************POST REQUESTS***************
 app.post("/workshops", createWorkshop(prisma));

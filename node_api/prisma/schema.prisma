@@ -89,13 +89,14 @@ model RfidOrder {
 model Workshop {
   id        Int       @id @default(autoincrement())
   name      String
-  enCoursId Int       
+  enCoursId Int    
   EnCours   EnCours   @relation(fields: [enCoursId], references: [id])
   Order     Order[]
   Support   Support[]
   Time      Time[]
   Activity  Activity[]
   Artisan   Artisan[]
+  StdTime     StdTime[]
 }
 
 model Support {
@@ -148,7 +149,18 @@ model Product{
   averageDuration     Float
   averageEcDuration   Float
   averagePrdDuration  Float
+  stdTraversalTime    Int?
   Order       Order[]  
+  StdTime     StdTime[]
+}
+
+model StdTime{
+  id          Int       @id @default(autoincrement())
+  value       Int
+  workshopId  Int
+  productId   Int
+  Workshop    Workshop @relation(fields: [workshopId], references: [id])
+  Product     Product     @relation(fields: [productId], references: [id])
 }
 
 model Activity{

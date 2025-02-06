@@ -10,6 +10,7 @@ export const getWorkshops = (prisma) => async (req, res) => {
           },
         },
         Order: true,
+        StdTime: true,
       },
       orderBy: {
         EnCours: {

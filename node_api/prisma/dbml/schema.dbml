@@ -86,6 +86,7 @@ Table Workshop {
   Time Time [not null]
   Activity Activity [not null]
   Artisan Artisan [not null]
+  StdTime StdTime [not null]
 }
 
 Table Support {
@@ -138,7 +139,18 @@ Table Product {
   averageDuration Float [not null]
   averageEcDuration Float [not null]
   averagePrdDuration Float [not null]
+  stdTraversalTime Int
   Order Order [not null]
+  StdTime StdTime [not null]
+}
+
+Table StdTime {
+  id Int [pk, increment]
+  value Int [not null]
+  workshopId Int [not null]
+  productId Int [not null]
+  Workshop Workshop [not null]
+  Product Product [not null]
 }
 
 Table Activity {
@@ -183,5 +195,9 @@ Ref: Time.orderId > Order.id
 Ref: Time.enCoursId > EnCours.id
 
 Ref: Time.workshopId > Workshop.id
+
+Ref: StdTime.workshopId > Workshop.id
+
+Ref: StdTime.productId > Product.id
 
 Ref: Activity.workshopId > Workshop.id
