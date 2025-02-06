@@ -185,7 +185,7 @@ const GanttChartByProduct = ({ orders }) => {
             {showEnAttente &&(
               <div className="w-full border p-4 rounded-lg bg-white shadow-md">
                 <h3 className="text-xl font-bold mb-2">Temps Standard</h3>
-                <div className="flex items-center h-5 relative bg-gray-200 rounded-md overflow-hidden">
+                <div className="flex items-center h-5 relative rounded-md overflow-hidden">
                     <div className='h-full cursor-pointer border-r border-white bg-green-400' style={{ width: `${Math.max(2, (product.stdTraversalTime / maxTotalAverage) * 100)}%` }}></div>
                 </div>
               </div>
