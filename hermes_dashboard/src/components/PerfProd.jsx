@@ -203,6 +203,7 @@ const GanttChartByProduct = ({ orders }) => {
         // Somme totale pour le produit (utilisée pour déterminer si on affiche le graphique)
         const productTotalAverage = segments.reduce((acc, seg) => acc + seg.average, 0);
         const stdProduct = std.filter(stdtime => stdtime.productId === product.id).sort((a, b) => a.workshopId - b.workshopId);
+        console.log("stdProduct",stdProduct);
         return (
           <div key={productId} className="mb-8 flex space-x-4">
             {/* Card récapitulative à gauche */}
@@ -252,10 +253,10 @@ const GanttChartByProduct = ({ orders }) => {
             {!showEnAttente && (
               <div className="w-full border p-4 rounded-lg bg-white shadow-md">
               <h3 className="text-xl font-bold mb-2">Temps cibles</h3>
-              <div className="flex items-center h-5 relative rounded-md overflow-hidden">
+              <div className="flex items-center h-10 relative rounded-md overflow-hidden">
                   {//map into product std time, and change color of the div every
                   std.filter((stdtime) => stdtime.productId === product.id).map((stdtime) => (
-                    <div className={`h-full cursor-pointer border-r border-white bg-${workshopColors[stdtime.workshopId]}`} style={{ width: `${Math.max(2, (stdtime.value / maxTotalAverage) * 100)}%` }}></div>
+                    <div className={`h-full cursor-pointer border-r border-white text-white font-bold bg-${workshopColors[stdtime.workshopId]} text-center`} style={{ width: `${Math.max(2, (stdtime.value / maxTotalAverage) * 100)}%` }}>{Duration.fromMillis(stdtime.value).toFormat("h 'h,' m 'm'")}</div>
                   ))}
               </div>
             </div>
@@ -271,7 +272,7 @@ const GanttChartByProduct = ({ orders }) => {
                     {segments.map((seg, index) => ((
                       <div
                         key={index}
-                        className={`h-full cursor-pointer border-r border-white ${
+                        className={`h-full cursor-pointer border-r border-white text-white text-center font-bold ${
                           seg.type === 'En-Attente' ? 'bg-gray-400' : `bg-${workshopColors[seg.id]}`
                         }`}
                         style={{ width: `${Math.max(2, (seg.average / maxTotalAverage) * 100)}%` }}
@@ -283,8 +284,15 @@ const GanttChartByProduct = ({ orders }) => {
                           })
                         }
                         onMouseLeave={() => setHoveredInfo(null)}
-                      ></div>)
-                    ))}
+                      >{!showEnAttente && (stdProduct.map(
+                        (stdtime) => (
+                          stdtime.workshopId === parseInt(seg.id) && (
+                            Math.round((seg.average/stdtime.value)*100)
+                          )
+                        )
+                      ))}%
+                    </div>
+                    )))}
                   </div>
                 ) : (
                   <p className="italic text-sm">Aucune donnée pour ce produit.</p>
