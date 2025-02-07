@@ -1,4 +1,6 @@
 import {getLastEventTimestamp} from "../helpers.js";
+import { antennasMac } from "./antennas.js";
+
 
 /**
  * Retrieves all rfids from the database, including associated
@@ -19,7 +21,11 @@ export const getAllRfids  = (prisma) => async (req, res) => {
   }
 };
 export const processRfidDetection  = (prisma) => async (req, res) => {
-    const { id } = req.params; // Antenna ID
+    let { id } = req.params; // Antenna mac
+    console.log("Mac adress", id);
+    //get id from antenna mac
+    id = Object.keys(antennasMac).find(key => antennasMac[key] === id);
+    console.log("id", id);
     const { rfids, timestamp } = req.body; // Array of RFID IDs & Timestamp
     console.log("received from antenna", id,"rfids:", rfids,"timestamp:", timestamp);
     if(id === '0'){

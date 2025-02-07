@@ -30,6 +30,7 @@ import apiUrl from '../api';
 
 const Workshop = () => {
     const { workshopId: id } = useParams();
+    const [wsid, setWsid] = useState(null);
     const [workshop, setWorkshop] = useState(null);
     const [encours, setEncours] = useState(null);
     const [orders, setOrders] = useState([]);
@@ -43,10 +44,23 @@ const Workshop = () => {
 
 
     useEffect(() => {
+        const fetchId = async () => {
+            try {
+                const res = await axios.get(`${apiUrl}/wsid/${id}`);
+                console.log("res:",res.data);
+                setWsid(res.data);
+            } catch (error) {
+                console.error("Failed to fetch workshop:", error);
+            }
+        };
+        fetchId();
+    }, [id]);
+
+    useEffect(() => {
         const fetchWorkshop = async () => {
             try {
-                if(parseInt(id) !== 0){
-                    const res = await axios.get(`${apiUrl}/workshops/${id}`);
+                if(parseInt(wsid) !== 0){
+                    const res = await axios.get(`${apiUrl}/workshops/${wsid}`);
                     setWorkshop(res.data);
                     
                 }
@@ -61,7 +75,7 @@ const Workshop = () => {
         setInterval(() => {
             fetchWorkshop();
         }, 2000);
-    }, [id]);
+    }, [wsid]);
 
     useEffect(() => {
         if (!workshop) {
@@ -136,12 +150,12 @@ const Workshop = () => {
                     setSelectedOrder(null);
                     setNfcError("Timeout: Pas de badge reçu au bout de 30 secondes.");
                     // Arrête le scanning côté backend
-                    await axios.post(`${apiUrl}/nfc/${id}/stop-scanning`);
+                    await axios.post(`${apiUrl}/nfc/${wsid}/stop-scanning`);
                     return;
                 }
 
                 try {
-                    const response = await axios.get(`${apiUrl}/nfc/${id}`);
+                    const response = await axios.get(`${apiUrl}/nfc/${wsid}`);
 
                     if (response.status === 200 && response.data.nfcId) {
                         // open the declare support modal and stop polling
@@ -149,7 +163,7 @@ const Workshop = () => {
                         setNfcData(response.data);
 
                         // Notify the backend to stop scanning
-                        await axios.post(`${apiUrl}/nfc/${id}/stop-scanning`);
+                        await axios.post(`${apiUrl}/nfc/${wsid}/stop-scanning`);
                         setIsModalVisible(true);
                         console.log("order data",  selectedOrder);
                     } 
@@ -166,7 +180,7 @@ const Workshop = () => {
                         setIsLoadingNfc(false);
                         setSelectedOrder(null);
                         setNfcError("Sélectionnez un of pour lire le badge.");
-                        await axios.post(`${apiUrl}/nfc/${id}/stop-scanning`);
+                        await axios.post(`${apiUrl}/nfc/${wsid}/stop-scanning`);
                     }else {
                         throw pollError;
                     }
@@ -185,11 +199,11 @@ const Workshop = () => {
         }
     };
 
-    if (parseInt(id) !== 0 && (!workshop || !encours)) {
+    if (parseInt(wsid) !== 0 && (!workshop || !encours)) {
         // Loading or error state
         return <div>Loading...</div>;
     }
-    if(parseInt(id) !== 0){
+    if(parseInt(wsid) !== 0){
         return (   
             <div className="flex flex-col w-full bg-[#f8f8f8] p-8">
                 {isModalVisible && (

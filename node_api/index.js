@@ -4,7 +4,7 @@
 //routes
 import { getAntennas } from "./src/functions/antennas.js";
 import { getEnCours, getEnCoursById, getOrdersByEnCoursId } from "./src/functions/encours.js";
-import { getWorkshops, getWorkshopById, getOrdersByWorkshopId, createWorkshop, getWorkshopActivities } from "./src/functions/workshops.js";
+import { getWorkshops, getWorkshopById, getOrdersByWorkshopId, createWorkshop, getWorkshopActivities, getMacWorkshop } from "./src/functions/workshops.js";
 import { getAllOrders,getLastEventForOrder, createOrder, assignOrderToRfid, createSampleOrder } from "./src/functions/orders.js";
 import { getArtisansWithStats } from "./src/functions/artisans.js";
 import { getAllEvents } from "./src/functions/events.js";
@@ -19,6 +19,8 @@ import { getStdTimes } from "./src/functions/stdtime.js";
 //routines
 import { checkForAnomalies } from "./src/routines/alerts.js";   
 import { updateStats} from "./src/routines/stats.js";
+import { antennasMac } from "./src/functions/antennas.js";
+
 
 import express from "express";
 import cors from "cors";
@@ -61,7 +63,7 @@ app.get("/products/:id", getProductById(prisma));
 app.get("/activities", getAllActivities(prisma));
 app.get("/activities/:id", getActivityById(prisma));
 app.get("/stdtime",getStdTimes(prisma));
-
+app.get("/wsid/:id",getMacWorkshop());
 //***************POST REQUESTS***************
 app.post("/workshops", createWorkshop(prisma));
 app.post("/antennas/:id/rfids", processRfidDetection(prisma));
@@ -81,7 +83,9 @@ let workshopScanningState = {}; // { [workshopId]: { isScanning: boolean, curren
 // Start scanning for a specific workshop
 app.post("/nfc/:workshopId/start-scanning", (req, res) => {
     console.log("start scanning...");
-    const { workshopId } = req.params;
+    let { workshopId } = req.params;
+    workshopId = Object.keys(antennasMac).find((key) => antennasMac[key] === workshopId);
+    console.log("start scanning for workshop : ", workshopId);
     if (!workshopScanningState[workshopId]) {
         workshopScanningState[workshopId] = { isScanning: true, currentNFC: null };
         console.log("workshopScanningState",workshopScanningState);
@@ -94,7 +98,8 @@ app.post("/nfc/:workshopId/start-scanning", (req, res) => {
 
 // Stop scanning for a specific workshop
 app.post("/nfc/:workshopId/stop-scanning", (req, res) => {
-    const { workshopId } = req.params;
+    let { workshopId } = req.params;
+    workshopId = Object.keys(antennasMac).find((key) => antennasMac[key] === workshopId);
     if (workshopScanningState[workshopId]) {
         workshopScanningState[workshopId].isScanning = false;
         workshopScanningState[workshopId].currentNFC = null;
@@ -105,9 +110,9 @@ app.post("/nfc/:workshopId/stop-scanning", (req, res) => {
 // Handle NFC detection for a specific workshop
 app.post("/nfc/:workshopId", (req, res) => {
     console.log("nfc detection...");
-    const { workshopId } = req.params;
+    let { workshopId } = req.params;
     const { nfc, timestamp } = req.body;
-
+    workshopId = Object.keys(antennasMac).find((key) => antennasMac[key] === workshopId);
     console.log(`Received NFC data for workshop ${workshopId}:`, nfc, "timestamp:", timestamp);
 
     try {

@@ -11,10 +11,24 @@ const GanttChartByProduct = ({ orders }) => {
    */
 
   const workshopColors = {
-    1: 'red-400',
-    2: 'green-400',
+    1: 'orange-300',
+    2: 'green-300',
     3: 'blue-400',
   }
+
+  const [workshops, setWorkshops] = useState({});
+  useEffect(() => {
+    const fetchWorkshops = async () => {
+      try {
+        const response = await axios.get(apiUrl+'/workshops');
+        setWorkshops(response.data);
+        console.log("workshops",response.data);
+      } catch (error) {
+        console.error('Failed to fetch workshops:', error);
+      }
+    };
+    fetchWorkshops();
+  }, []);
   const productAverages = useMemo(() => {
     const result = {};
     orders.forEach((order) => {
@@ -109,12 +123,26 @@ const GanttChartByProduct = ({ orders }) => {
 
   return (
     <div className="flex flex-col w-3/4 bg-[#f8f8f8] p-8 mt-4 ml-64 overflow-x-hidden">
-      <button
-        className="bg-orange-200 hover:bg-orange-300 rounded-md px-4 py-2 mb-4 w-1/4"
-        onClick={() => setShowEnAttente(!showEnAttente)}
-      >
-        {showEnAttente ? 'Temps de traversée' : 'Temps de production'}
-      </button>
+      <div className='flex flex-row justify-between'>
+        <button
+          className="bg-orange-200 hover:bg-orange-300 rounded-md px-4 py-2 mb-4 w-1/4"
+          onClick={() => setShowEnAttente(!showEnAttente)}
+        >
+          {showEnAttente ? 'Temps de traversée' : 'Temps de production'}
+        </button>
+        {!showEnAttente && (
+          <div className='flex flex-row'>
+          {Object.entries(workshopColors).map(([id, color], index) => (
+              <div
+                key={id}
+                className={"w-64 h-full p-1 flex items-center justify-center bg-"+(color)}
+              >
+                <span className="text-white font-bold">{`${workshops[id-1]?.name}`}</span>
+              </div>
+          ))}
+          </div>
+        )}
+      </div>
       {Object.entries(productAverages).map(([productId, averages]) => {
         // Récupérer les infos du produit à partir du premier ordre trouvé
         const productOrder = orders.find((o) => o.Product.id.toString() === productId);
@@ -161,10 +189,20 @@ const GanttChartByProduct = ({ orders }) => {
         const formattedEnAttente = Duration.fromMillis(totalEnAttente)
           .shiftTo('hours', 'minutes')
           .toFormat("h 'h,' m 'm'");
+        const formattedTotalTime = Duration.fromMillis(totalAtelier + totalEnAttente)
+          .shiftTo('hours', 'minutes')
+          .toFormat("h 'h,' m 'm'");
+        const formattedTraversalTime = Duration.fromMillis(product.stdTraversalTime)
+          .shiftTo('hours', 'minutes')
+          .toFormat("h 'h,' m 'm'");
+        
+        const formattedStdPerf = Duration.fromMillis(Math.abs(product.stdTraversalTime-(totalAtelier+totalEnAttente)))
+          .shiftTo('hours', 'minutes')
+          .toFormat("h 'h,' m 'm'");
 
         // Somme totale pour le produit (utilisée pour déterminer si on affiche le graphique)
         const productTotalAverage = segments.reduce((acc, seg) => acc + seg.average, 0);
-
+        const stdProduct = std.filter(stdtime => stdtime.productId === product.id).sort((a, b) => a.workshopId - b.workshopId);
         return (
           <div key={productId} className="mb-8 flex space-x-4">
             {/* Card récapitulative à gauche */}
@@ -172,12 +210,33 @@ const GanttChartByProduct = ({ orders }) => {
               <h3 className="text-xl font-bold mb-2">
                 {product.material} {product.color} {product.option}
               </h3>
-              <p>
+              {showEnAttente &&(
+                <div><p>
                 <strong>Temps en atelier :</strong> {formattedAtelier}
               </p>
               <p>
                 <strong>Temps d'attente :</strong> {formattedEnAttente}
               </p>
+              <p>
+                <strong>Temps de traversée :</strong> {formattedTotalTime}
+              </p>
+              <p>
+                <strong>Temps standard :</strong> {formattedTraversalTime}
+              </p>
+              <p className={product.stdTraversalTime > (totalAtelier+totalEnAttente) ? 'text-green-500' : 'text-red-500'}>
+                <strong >{product.stdTraversalTime > (totalAtelier+totalEnAttente) ? 'en avance de ' : 'en retard de '}</strong> {formattedStdPerf}
+              </p></div>
+              )}
+              {!showEnAttente && (
+                <div><p>
+                <strong>Temps de production :</strong> {formattedTotalTime}
+              </p>
+              <p>
+                <strong>Performance :</strong> {Math.round(totalAtelier / stdProduct.reduce((acc, stdtime) => acc + stdtime.value, 0)*100, 2)} %
+              </p></div>
+              )} 
+                  
+              
             </div>
             
             
@@ -193,7 +252,7 @@ const GanttChartByProduct = ({ orders }) => {
             {!showEnAttente && (
               <div className="w-full border p-4 rounded-lg bg-white shadow-md">
               <h3 className="text-xl font-bold mb-2">Temps cibles</h3>
-              <div className="flex items-center h-5 relative bg-gray-200 rounded-md overflow-hidden">
+              <div className="flex items-center h-5 relative rounded-md overflow-hidden">
                   {//map into product std time, and change color of the div every
                   std.filter((stdtime) => stdtime.productId === product.id).map((stdtime) => (
                     <div className={`h-full cursor-pointer border-r border-white bg-${workshopColors[stdtime.workshopId]}`} style={{ width: `${Math.max(2, (stdtime.value / maxTotalAverage) * 100)}%` }}></div>
@@ -213,7 +272,7 @@ const GanttChartByProduct = ({ orders }) => {
                       <div
                         key={index}
                         className={`h-full cursor-pointer border-r border-white ${
-                          seg.type === 'En-Attente' ? 'bg-orange-400' : `bg-${workshopColors[seg.id]}`
+                          seg.type === 'En-Attente' ? 'bg-gray-400' : `bg-${workshopColors[seg.id]}`
                         }`}
                         style={{ width: `${Math.max(2, (seg.average / maxTotalAverage) * 100)}%` }}
                         onMouseEnter={() =>

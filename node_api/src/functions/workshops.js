@@ -1,5 +1,5 @@
 import { getLastEventTimestamp, calculateMinutesDifference } from "../helpers.js";
-
+import { antennasMac } from "./antennas.js";
 export const getWorkshops = (prisma) => async (req, res) => {
   try {
     const workshops = await prisma.workshop.findMany({
@@ -139,5 +139,15 @@ export const getWorkshopActivities = (prisma) => async (req, res) => {
     res.json(workshop.Activity);
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch activities." });
+  }
+};
+
+export const getMacWorkshop = () => async (req, res) => {
+  const { id } = req.params;
+  try {
+    const wsid = Object.keys(antennasMac).find((key) => antennasMac[key] === id);
+    res.json(wsid);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch mac." });
   }
 };
