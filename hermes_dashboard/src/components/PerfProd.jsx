@@ -233,7 +233,7 @@ const GanttChartByProduct = ({ orders }) => {
                 <strong>Temps de production :</strong> {formattedTotalTime}
               </p>
               <p>
-                <strong>Performance :</strong> {Math.round(totalAtelier / stdProduct.reduce((acc, stdtime) => acc + stdtime.value, 0)*100, 2)} %
+                <strong>Performance :</strong> {totalAtelier && Math.round( (stdProduct.reduce((acc, stdtime) => acc + stdtime.value, 0)/totalAtelier)*100, 2)} %
               </p></div>
               )} 
                   
@@ -287,10 +287,10 @@ const GanttChartByProduct = ({ orders }) => {
                       >{!showEnAttente && (stdProduct.map(
                         (stdtime) => (
                           stdtime.workshopId === parseInt(seg.id) && (
-                            Math.round((seg.average/stdtime.value)*100)
+                            Math.round((stdtime.value/seg.average)*100)
                           )
                         )
-                      ))}%
+                      ))}{!showEnAttente && " %"}
                     </div>
                     )))}
                   </div>
