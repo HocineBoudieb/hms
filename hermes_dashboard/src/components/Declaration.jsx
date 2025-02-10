@@ -44,7 +44,7 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
 
     return (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-75 flex justify-center items-center">
-            <div className="bg-white w-1/3 p-8 rounded-lg shadow-lg relative">
+            <div className="bg-white w-1/2 p-8 rounded-lg shadow-lg relative">
                 <h2 className="text-2xl font-bold mb-4">Prise en Charge</h2>
                 <button
                     className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"

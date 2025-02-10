@@ -59,7 +59,7 @@ const Workshop = () => {
     useEffect(() => {
         const fetchWorkshop = async () => {
             try {
-                if(parseInt(wsid) !== 0){
+                if(parseInt(wsid) !== 0 && parseInt(wsid) !== 4 ){
                     const res = await axios.get(`${apiUrl}/workshops/${wsid}`);
                     setWorkshop(res.data);
                     
@@ -203,7 +203,7 @@ const Workshop = () => {
         // Loading or error state
         return <div>Loading...</div>;
     }
-    if(parseInt(wsid) !== 0){
+    if(parseInt(wsid) !== 0 && parseInt(wsid) !== 4){
         return (   
             <div className="flex flex-col w-full bg-[#f8f8f8] p-8">
                 {isModalVisible && (
@@ -283,7 +283,41 @@ const Workshop = () => {
             </div>
         );
     }
-    else{
+    else if(parseInt(wsid) === 4){
+        {/*Expedition View */}
+        return(
+            <div className="w-full flex">
+           
+            <div className="flex flex-col h-full w-full bg-white shadow p-8 m-4 rounded-lg">
+                <h2 className="text-2xl font-semibold mb-4">Controle Qualité</h2>
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Identifiant</th>
+                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Chevalet</th>
+                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produit</th>
+                            <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priorité</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {orders.filter(order => order.enCoursId === 24).map(order => (
+                            <tr key={order.id} >
+                                <td className="px-6 py-4 whitespace-nowrap">{order.id}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{order.trolley}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">{order.Product.material} {order.Product.color} {order.Product.option}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className={order.priority === 'medium' ? 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-orange-300' : (order.priority === 'urgent' ? 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-red-300' : 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-green-300') }>{order.priority}</span>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+            
+        );
+        
+    }else{
         //eslint-disable-next-line
         {/* First Workshop View, Assign Orders to Trolley */}
         return(
