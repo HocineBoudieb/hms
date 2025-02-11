@@ -184,21 +184,22 @@ const GanttChartByProduct = ({ orders }) => {
 
         // Formatage des durées avec Luxon
         const formattedAtelier = Duration.fromMillis(totalAtelier)
-          .shiftTo('hours', 'minutes')
-          .toFormat("h 'h,' m 'm'");
+          .shiftTo('days')
+          .toFormat("d 'j'");
         const formattedEnAttente = Duration.fromMillis(totalEnAttente)
-          .shiftTo('hours', 'minutes')
-          .toFormat("h 'h,' m 'm'");
+          .shiftTo('days')
+          .toFormat("d 'j'");
         const formattedTotalTime = Duration.fromMillis(totalAtelier + totalEnAttente)
-          .shiftTo('hours', 'minutes')
-          .toFormat("h 'h,' m 'm'");
+          .shiftTo('days')
+          .toFormat("d 'j'");
         const formattedTraversalTime = Duration.fromMillis(product.stdTraversalTime)
-          .shiftTo('hours', 'minutes')
-          .toFormat("h 'h,' m 'm'");
+          .shiftTo('days')
+          .toFormat("d 'j'");
         
         const formattedStdPerf = Duration.fromMillis(Math.abs(product.stdTraversalTime-(totalAtelier+totalEnAttente)))
-          .shiftTo('hours', 'minutes')
-          .toFormat("h 'h,' m 'm'");
+          .shiftTo('days')
+          .toFormat("d 'j'");
+        
 
         // Somme totale pour le produit (utilisée pour déterminer si on affiche le graphique)
         const productTotalAverage = segments.reduce((acc, seg) => acc + seg.average, 0);
@@ -213,24 +214,35 @@ const GanttChartByProduct = ({ orders }) => {
               </h3>
               {showEnAttente &&(
                 <div><p>
-                <strong>Temps en atelier :</strong> {formattedAtelier}
+                <strong>Temps utile :</strong> {formattedAtelier}
               </p>
               <p>
                 <strong>Temps d'attente :</strong> {formattedEnAttente}
               </p>
-              <p>
+              <p className={product.stdTraversalTime > (totalAtelier+totalEnAttente) ? 'text-green-500' : 'text-red-500'}>
                 <strong>Temps de traversée :</strong> {formattedTotalTime}
               </p>
               <p>
                 <strong>Temps standard :</strong> {formattedTraversalTime}
               </p>
-              <p className={product.stdTraversalTime > (totalAtelier+totalEnAttente) ? 'text-green-500' : 'text-red-500'}>
-                <strong >{product.stdTraversalTime > (totalAtelier+totalEnAttente) ? 'en avance de ' : 'en retard de '}</strong> {formattedStdPerf}
-              </p></div>
+              </div>
               )}
               {!showEnAttente && (
                 <div><p>
                 <strong>Temps de production :</strong> {formattedTotalTime}
+              </p>
+              <p>
+                <strong>Performance par atelier :</strong> {segments.map(segment => (
+                  <span key={segment.id}>
+                     {workshops[segment.id-1]?.name} : {
+                       stdProduct.map(stdtime => (
+                         stdtime.workshopId === parseInt(segment.id) && (
+                           Math.round((stdtime.value/segment.average)*100)
+                         )
+                       ))
+                     } %<br />
+                  </span>
+                ))}
               </p>
               <p>
                 <strong>Performance :</strong> {totalAtelier && Math.round( (stdProduct.reduce((acc, stdtime) => acc + stdtime.value, 0)/totalAtelier)*100, 2)} %
@@ -244,7 +256,7 @@ const GanttChartByProduct = ({ orders }) => {
             <div className='flex flex-col w-2/3 p-4'>
             {showEnAttente &&(
               <div className="w-full border p-4 rounded-lg bg-white shadow-md">
-                <h3 className="text-xl font-bold mb-2">Temps Standard</h3>
+                <h3 className="text-xl font-bold mb-2">Temps Cible</h3>
                 <div className="flex items-center h-5 relative rounded-md overflow-hidden">
                     <div className='h-full cursor-pointer border-r border-white bg-green-400' style={{ width: `${Math.max(2, (product.stdTraversalTime / maxTotalAverage) * 100)}%` }}></div>
                 </div>
@@ -252,7 +264,7 @@ const GanttChartByProduct = ({ orders }) => {
             )}
             {!showEnAttente && (
               <div className="w-full border p-4 rounded-lg bg-white shadow-md">
-              <h3 className="text-xl font-bold mb-2">Temps cibles</h3>
+              <h3 className="text-xl font-bold mb-2">Temps Standards</h3>
               <div className="flex items-center h-10 relative rounded-md overflow-hidden">
                   {//map into product std time, and change color of the div every
                   std.filter((stdtime) => stdtime.productId === product.id).map((stdtime) => (
@@ -266,9 +278,9 @@ const GanttChartByProduct = ({ orders }) => {
             {/* Card du produit et graphique à droite */}
               <div className="w-full border p-4 rounded-lg bg-white shadow-md">
 
-              <h3 className="text-xl font-bold mb-2">Temps Produit</h3>
+              <h3 className="text-xl font-bold mb-2">Temps Site</h3>
                 {productTotalAverage > 0 ? (
-                  <div className="flex items-center h-10 relative bg-gray-200 rounded-md overflow-hidden">
+                  <div className="flex items-center h-10 relative rounded-md overflow-hidden">
                     {segments.map((seg, index) => ((
                       <div
                         key={index}
@@ -284,13 +296,7 @@ const GanttChartByProduct = ({ orders }) => {
                           })
                         }
                         onMouseLeave={() => setHoveredInfo(null)}
-                      >{!showEnAttente && (stdProduct.map(
-                        (stdtime) => (
-                          stdtime.workshopId === parseInt(seg.id) && (
-                            Math.round((stdtime.value/seg.average)*100)
-                          )
-                        )
-                      ))}{!showEnAttente && " %"}
+                      >{Duration.fromMillis(seg.average).toFormat("h 'h,' m 'm'")}
                     </div>
                     )))}
                   </div>
@@ -324,3 +330,4 @@ const GanttChartByProduct = ({ orders }) => {
 };
 
 export default GanttChartByProduct;
+
