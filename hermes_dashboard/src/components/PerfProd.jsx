@@ -183,22 +183,20 @@ const GanttChartByProduct = ({ orders }) => {
           .reduce((acc, seg) => acc + seg.average, 0);
 
         // Formatage des durées avec Luxon
-        const formattedAtelier = Duration.fromMillis(totalAtelier)
+        const formattedAtelier = Duration.fromMillis(12 * totalAtelier)
           .shiftTo('days')
           .toFormat("d 'j'");
-        const formattedEnAttente = Duration.fromMillis(totalEnAttente)
+        const formattedEnAttente = Duration.fromMillis(12 * totalEnAttente)
           .shiftTo('days')
           .toFormat("d 'j'");
-        const formattedTotalTime = Duration.fromMillis(totalAtelier + totalEnAttente)
+        const formattedTotalTime = Duration.fromMillis(12 *totalAtelier + totalEnAttente)
           .shiftTo('days')
           .toFormat("d 'j'");
         const formattedTraversalTime = Duration.fromMillis(product.stdTraversalTime)
           .shiftTo('days')
           .toFormat("d 'j'");
         
-        const formattedStdPerf = Duration.fromMillis(Math.abs(product.stdTraversalTime-(totalAtelier+totalEnAttente)))
-          .shiftTo('days')
-          .toFormat("d 'j'");
+        const formattedProdTime = Duration.fromMillis(totalAtelier).shiftTo('hours').toFormat("h 'h'");
         
 
         // Somme totale pour le produit (utilisée pour déterminer si on affiche le graphique)
@@ -229,7 +227,7 @@ const GanttChartByProduct = ({ orders }) => {
               )}
               {!showEnAttente && (
                 <div><p>
-                <strong>Temps de production :</strong> {formattedTotalTime}
+                <strong>Temps de production :</strong> {formattedProdTime}
               </p>
               <p>
                 <strong>Performance par atelier :</strong> {segments.map(segment => (
@@ -264,7 +262,7 @@ const GanttChartByProduct = ({ orders }) => {
             )}
             {!showEnAttente && (
               <div className="w-full border p-4 rounded-lg bg-white shadow-md">
-              <h3 className="text-xl font-bold mb-2">Temps Standards</h3>
+              <h3 className="text-xl font-bold mb-2">Temps Standard</h3>
               <div className="flex items-center h-10 relative rounded-md overflow-hidden">
                   {//map into product std time, and change color of the div every
                   std.filter((stdtime) => stdtime.productId === product.id).map((stdtime) => (
@@ -296,7 +294,7 @@ const GanttChartByProduct = ({ orders }) => {
                           })
                         }
                         onMouseLeave={() => setHoveredInfo(null)}
-                      >{Duration.fromMillis(seg.average).toFormat("h 'h,' m 'm'")}
+                      >{!showEnAttente && Duration.fromMillis(seg.average).toFormat("h 'h,' m 'm'")}
                     </div>
                     )))}
                   </div>

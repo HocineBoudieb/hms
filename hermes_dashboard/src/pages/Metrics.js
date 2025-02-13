@@ -100,6 +100,7 @@ const Metrics = () => {
                                                                 <TableRow className="bg-orange-50">
                                                                     <TableCell className="font-semibold text-gray-700 py-2">ID de l'Ordre</TableCell>
                                                                     <TableCell className="font-semibold text-gray-700 py-2">Temps de Prise en Charge (heures)</TableCell>
+                                                                    <TableCell className="font-semibold text-gray-700 py-2">Artisan</TableCell>
                                                                 </TableRow>
                                                             </TableHead>
                                                             <TableBody>
@@ -111,6 +112,7 @@ const Metrics = () => {
                                                                                 ? `${Math.floor(order.traversalTime / 1000 / 60 / 60)}h ${Math.floor(order.traversalTime / 1000 / 60) % 60}min`
                                                                                 : 'N/A'}
                                                                         </TableCell>
+                                                                        <TableCell className="py-2 text-gray-600 border-b border-gray-100">{order.artisan}</TableCell>
                                                                     </TableRow>
                                                                 ))}
                                                             </TableBody>

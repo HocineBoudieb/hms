@@ -55,6 +55,7 @@ export const getActivityById = (prisma) => async (req, res) => {
                 const orderWithTraversalTime = {
                     ...order,
                     traversalTime,
+                    artisan: support.Artisan.name,
                 };
                 return orderWithTraversalTime;
             })
