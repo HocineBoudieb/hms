@@ -285,7 +285,7 @@ const Workshop = () => {
                                     .filter(order => order.workshopId === workshop.id)
                                     .sort((a, b) => priorities[a.priority] - priorities[b.priority])
                                     .map((order) => (
-                                    <tr key={order.id}>
+                                    <tr key={order.id} className="text-xl">
                                         <td className="px-3 py-4 whitespace-normal">{order.id}</td>
                                         <td className="px-3 py-4 whitespace-normal">{order.Product.material}</td>
                                         <td className="px-3 py-4 whitespace-normal">{order.trolley}</td>
@@ -305,7 +305,7 @@ const Workshop = () => {
             <div className="w-full flex select-none" {...events} ref={ref}>
            
             <div className="flex flex-col h-full w-full bg-white shadow p-8 m-4 rounded-lg">
-                <h2 className="text-2xl font-semibold mb-4">Controle Qualité</h2>
+                <h2 className="text-3xl font-semibold mb-4">Controle Qualité</h2>
                 <table className="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
@@ -319,7 +319,7 @@ const Workshop = () => {
                         {orders.filter(order => order.enCoursId === 24)
                                     .sort((a, b) => priorities[a.priority] - priorities[b.priority])
                                     .map(order => (
-                            <tr key={order.id} >
+                            <tr key={order.id} className="text-2xl">
                                 <td className="px-6 py-4 whitespace-nowrap">{order.id}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{order.trolley}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">{order.Product.material} {order.Product.color} {order.Product.option}</td>
