@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/static/css/main.d8b3b3b6.css",
-    "main.js": "/static/js/main.8fbc73df.js",
+    "main.js": "/static/js/main.cafea814.js",
     "static/media/logo.png": "/static/media/logo.c04f0de9586652824b1e.png",
     "static/media/encours.png": "/static/media/encours.591f7f3f583736344c4a.png",
     "static/media/workshop.png": "/static/media/workshop.ba09092460f5b92f8feb.png",
     "static/media/quality.png": "/static/media/quality.7ac5693d7fd1f0be3c98.png",
     "index.html": "/index.html",
     "main.d8b3b3b6.css.map": "/static/css/main.d8b3b3b6.css.map",
-    "main.8fbc73df.js.map": "/static/js/main.8fbc73df.js.map"
+    "main.cafea814.js.map": "/static/js/main.cafea814.js.map"
   },
   "entrypoints": [
     "static/css/main.d8b3b3b6.css",
-    "static/js/main.8fbc73df.js"
+    "static/js/main.cafea814.js"
   ]
 }
