@@ -99,6 +99,7 @@ app.post("/nfc/:workshopId/start-scanning", (req, res) => {
 // Stop scanning for a specific workshop
 app.post("/nfc/:workshopId/stop-scanning", (req, res) => {
     let { workshopId } = req.params;
+    console.log("stop scanning for ws",workshopId);
     workshopId = Object.keys(antennasMac).find((key) => antennasMac[key] === workshopId);
     if (workshopScanningState[workshopId]) {
         workshopScanningState[workshopId].isScanning = false;

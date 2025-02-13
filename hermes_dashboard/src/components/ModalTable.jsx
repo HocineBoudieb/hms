@@ -42,7 +42,7 @@ const ModalTable = ({ isModalVisible, modalData, setIsModalVisible }) => {
                                     <TableCell>
                                         {Duration.fromMillis(row.daysSinceCreation).shiftTo('hours').toFormat("h 'h,' m 'm'")}
                                     </TableCell>
-                                    <TableCell> <span className={row.priority === 'medium' ? 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-orange-300' : (row.priority === 'urgent' ? 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-red-300' : 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-green-300') }>{row.priority}</span></TableCell>
+                                    <TableCell> <span className={row.priority === 'moyen' ? 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-orange-300' : (row.priority === 'urgent' ? 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-red-300' : 'inline-flex items-center text-white font-bold px-2 py-1 rounded bg-green-300') }>{row.priority}</span></TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

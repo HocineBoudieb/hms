@@ -33,8 +33,6 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
                 nfcTag: nfcData.nfcId,
                 activity: selectedActivity,
             });
-
-            alert("Prise en charge déclarée avec succès !");
             onClose(); // Ferme la modale après le succès
         } catch (err) {
             console.error("Erreur lors de la prise en charge :", err);
@@ -44,8 +42,8 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
 
     return (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-75 flex justify-center items-center">
-            <div className="bg-white w-1/2 p-8 rounded-lg shadow-lg relative">
-                <h2 className="text-2xl font-bold mb-4">Prise en Charge</h2>
+            <div className="bg-white w-3/4 h-3/4 p-8 rounded-lg shadow-lg relative">
+                <h2 className="text-4xl font-bold mb-4">Prise en Charge</h2>
                 <button
                     className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
                     onClick={onClose}
@@ -53,15 +51,15 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
                     ✕
                 </button>
                 <div className="mb-4">
-                    <p>
+                    <p className="text-2xl">
                         <strong>Badge Scanné :</strong> {nfcData.artisan}
                     </p>
-                    <p>
+                    <p className="text-2xl">
                         <strong>Ordre de Fabrication :</strong> {orderData.id} -{" "}
                         {orderData.product}
                     </p>
                 </div>
-                <div className="mb-4">
+                <div className="mb-4 h-1/5">
                     <label htmlFor="activity" className="block text-sm font-medium text-gray-700">
                         Sélectionnez une activité
                     </label>
@@ -69,11 +67,11 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
                         id="activity"
                         value={selectedActivity}
                         onChange={(e) => setSelectedActivity(e.target.value)}
-                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm py-4"
                     >
-                        <option value="">-- Choisir une activité --</option>
+                        <option value="" className="text-xl">-- Choisir une activité --</option>
                         {activities.map((activity) => (
-                            <option key={activity.id} value={activity.id}> {activity.name}</option>
+                            <option className="text-xl" key={activity.id} value={activity.id}> {activity.name}</option>
                         ))}
                     </select>
                     {selectedActivity && (
@@ -85,7 +83,7 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
                 {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
                 <div className="flex justify-end">
                     <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                        className="bg-blue-500 hover:bg-blue-700 text-white text-xl font-bold mt-4 py-4 px-4 rounded"
                         onClick={handleTakeCharge}
                     >
                         Prendre en charge

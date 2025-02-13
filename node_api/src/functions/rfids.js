@@ -22,14 +22,14 @@ export const getAllRfids  = (prisma) => async (req, res) => {
 };
 export const processRfidDetection  = (prisma) => async (req, res) => {
     let { id } = req.params; // Antenna mac
-    console.log("Mac adress", id);
+    //console.log("Mac adress", id);
     //get id from antenna mac
     id = Object.keys(antennasMac).find(key => antennasMac[key] === id);
-    console.log("id", id);
+    //console.log("id", id);
     const { rfids, timestamp } = req.body; // Array of RFID IDs & Timestamp
     console.log("received from antenna", id,"rfids:", rfids,"timestamp:", timestamp);
     if(id === '0'){
-        console.log("registering rfids");
+        //console.log("registering rfids");
         try {
             const createdRfids = await Promise.all(
             rfids.map(rfid => prisma.rfid.create({ data: {
@@ -82,10 +82,10 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
             },
             });
             const currentRfidsList = currentRfids.map(rfid => rfid.id);
-            console.log("currentRfidsList",currentRfidsList);
+            //console.log("currentRfidsList",currentRfidsList);
             const enteredRfids = detectedRfids.filter(rfidId => !currentRfidsList.includes(rfidId));
             const exitedRfids = currentRfidsList.filter(rfidId => !detectedRfids.includes(rfidId));
-            console.log("exitedRfids",exitedRfids,"enteredRfids",enteredRfids);
+            //console.log("exitedRfids",exitedRfids,"enteredRfids",enteredRfids);
         
             // Calculate changes
             // Process entered RFIDs into EnCours
