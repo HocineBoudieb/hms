@@ -258,7 +258,7 @@ const Workshop = () => {
                             <tbody className="bg-white divide-y divide-gray-200">
                                 {/* Map over encours orders */}
                                 {orders.filter(order => order.enCoursId === encours.id).map((order) => (
-                                    <tr key={order.id} onClick={() => handleSupport(order.id)} className={order.priority === 'medium' ? 'bg-orange-50' : (order.priority === 'urgent' ? 'bg-red-50' : '') }>
+                                    <tr key={order.id} onClick={() => handleSupport(order.id)} className={order.priority === 'moyen' ? 'bg-orange-50' : (order.priority === 'urgent' ? 'bg-red-50' : '') }>
                                         <td className="px-3 py-4 whitespace-normal">{order.id}</td>
                                         <td className="px-3 py-4 whitespace-normal ">{order.Product.material} {order.Product.color} {order.Product.option}</td>
                                         <td className="px-3 py-4 whitespace-normal">{order.trolley}</td>
