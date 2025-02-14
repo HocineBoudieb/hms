@@ -16,6 +16,7 @@ import { getAllTimeEntries } from "./src/functions/time.js";
 import { getAllProducts, getProductById } from "./src/functions/products.js";
 import { getAllActivities, getActivityById } from "./src/functions/activities.js";
 import { getStdTimes } from "./src/functions/stdtime.js";
+
 //routines
 import { checkForAnomalies } from "./src/routines/alerts.js";   
 import { updateStats} from "./src/routines/stats.js";
@@ -26,11 +27,12 @@ import express from "express";
 import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 
+import fs from 'fs';
+import path from 'path';
 //***************VARIABLES***************
 const prisma = new PrismaClient();
 const app = express();
 const port = 8081;
-
 app.use(express.json());
 app.use(cors());
 
@@ -165,6 +167,31 @@ app.get("/nfc/:workshopId", async (req, res) => {
         res.status(500).json({ message: "Failed to handle NFC scanning." });
     }
 });
+
+
+// Endpoint to reset the database
+app.post('/reset-db', (req, res) => {
+    const dbPath = path.join('/home/HermesServeur/Desktop/hms/node_api/prisma', 'hermes.db');
+    const backupDbPath = path.join('/home/HermesServeur/Desktop/hms/node_api/prisma', 'hermes_backup.db');
+
+    // Check if the backup file exists
+    if (fs.existsSync(backupDbPath)) {
+        // Copy the backup file to the original database file
+        fs.copyFile(backupDbPath, dbPath, (err) => {
+            if (err) {
+                console.error('Error replacing the database:', err);
+                return res.status(500).send('Error replacing the database.');
+            }
+            console.log('Database replaced successfully.');
+            res.status(200).send('Database reset successfully.');
+        });
+    } else {
+        console.error('Backup database file does not exist.');
+        res.status(500).send('Backup database file does not exist.');
+    }
+});
+
+
 //***************ROUTINES***************
 
 setInterval(() => checkForAnomalies(prisma), 5000);

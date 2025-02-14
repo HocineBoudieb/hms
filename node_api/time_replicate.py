@@ -42,14 +42,17 @@ def duplicate_entries():
 
     # Dupliquer pour orderId de 9 à 18
     for order_id in range(9, 19):
-        for time in times_order_1_to_8:
-            new_time = Time(
-                orderId=order_id,
-                duration=time.duration,
-                enCoursId=time.enCoursId,
-                workshopId=time.workshopId
-            )
-            db.add(new_time)
+        # Vérifier si des entrées existent déjà pour cet orderId
+        existing_entries = db.query(Time).filter(Time.orderId == order_id).all()
+        if not existing_entries:
+            for time in times_order_1_to_8:
+                new_time = Time(
+                    orderId=order_id,
+                    duration=time.duration,
+                    enCoursId=time.enCoursId,
+                    workshopId=time.workshopId
+                )
+                db.add(new_time)
 
     db.commit()
     db.close()
