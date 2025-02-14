@@ -33,26 +33,15 @@ class Time(Base):
     en_cours = relationship("EnCours")
     workshop = relationship("Workshop")
 
-# Fonction pour dupliquer les entrées
-def duplicate_entries():
+# Fonction pour supprimer les entrées dupliquées
+def delete_duplicated_entries():
     db = SessionLocal()
 
-    # Récupérer les entrées pour orderId de 1 à 8
-    times_order_1_to_8 = db.query(Time).filter(Time.orderId.in_(range(1, 9))).all()
-
-    # Dupliquer pour orderId de 9 à 18
-    for order_id in range(9, 19):
-        for time in times_order_1_to_8:
-            new_time = Time(
-                orderId=order_id,
-                duration=time.duration,
-                enCoursId=time.enCoursId,
-                workshopId=time.workshopId
-            )
-            db.add(new_time)
+    # Supprimer les entrées pour orderId de 9 à 27
+    db.query(Time).filter(Time.orderId.in_(range(9, 28))).delete(synchronize_session=False)
 
     db.commit()
     db.close()
 
-# Exécuter la duplication
-duplicate_entries()
+# Exécuter la suppression
+delete_duplicated_entries()
