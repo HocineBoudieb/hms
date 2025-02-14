@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import apiUrl from '../api';
+import classNames from "classnames";
+
 const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
     const [selectedActivity, setSelectedActivity] = useState("");
     const [error, setError] = useState(null);
@@ -41,54 +43,81 @@ const Declaration = ({ nfcData, orderData, onClose, workshopId }) => {
     };
 
     return (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-75 flex justify-center items-center">
-            <div className="bg-white w-3/4 h-3/4 p-8 rounded-lg shadow-lg relative">
-                <h2 className="text-4xl font-bold mb-4">Prise en Charge</h2>
-                <button
-                    className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
-                    onClick={onClose}
-                >
-                    ✕
-                </button>
-                <div className="mb-4">
-                    <p className="text-2xl">
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-75 flex justify-center items-center z-10">
+            <div className="bg-white w-1/2 p-8 rounded-lg shadow-lg relative">
+                <h2 className="text-3xl font-bold mb-4 uppercase text-center">Prise en Charge</h2>
+
+                <hr className="my-6 w-full" />
+                <div className="mb-4 text-xl uppercase space-y-2">
+                    <p>
                         <strong>Badge Scanné :</strong> {nfcData.artisan}
                     </p>
-                    <p className="text-2xl">
-                        <strong>Ordre de Fabrication :</strong> {orderData.id} -{" "}
+                    <p>
+                        <strong>Ordre de Fabrication :</strong> {orderData.id} - {orderData.Product.material} {orderData.Product.color} {orderData.Product.option}
                         {orderData.product}
                     </p>
                 </div>
-                <div className="mb-4 h-1/5">
-                    <label htmlFor="activity" className="block text-sm font-medium text-gray-700">
-                        Sélectionnez une activité
+                <hr className="my-6 w-full" />
+                <div className="mb-4">
+                    <label htmlFor="activity" className="block text-2xl font-medium text-black uppercase text-center mb-4">
+                        Sélectionner une activité
                     </label>
-                    <select
-                        id="activity"
-                        value={selectedActivity}
-                        onChange={(e) => setSelectedActivity(e.target.value)}
-                        className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm py-4"
-                    >
-                        <option value="" className="text-xl">-- Choisir une activité --</option>
+
+                    <div className="grid grid-cols-2 gap-6 justify-between w-full">
                         {activities.map((activity) => (
-                            <option className="text-xl" key={activity.id} value={activity.id}> {activity.name}</option>
+                            <>
+                                <div
+                                    key={activity.id}
+                                    className={classNames("flex items-center justify-center bg-gray-200 p-4 rounded-lg  h-36 text-center",
+                                        { "bg-orange-500 text-white": selectedActivity === activity.id }
+                                    )}
+                                    onClick={() => setSelectedActivity(activity.id)}
+                                >
+                                    <span className="text-3xl font-bold uppercase">{activity.name}</span>
+                                </div>
+                            </>
                         ))}
-                    </select>
-                    {selectedActivity && (
-                    <p className="mt-2 text-sm text-red-600">
-                        <strong>Enlevez le chevalet avant de déclarer.</strong>{console.log(selectedActivity)}
-                    </p>
-                    )}
+                    </div>
                 </div>
-                {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-                <div className="flex justify-end">
+                <hr className="my-6 w-full" />
+
+                <div>
+                    {selectedActivity && (
+                        <p className="my-4 text-lg font-bold text-[#ff0000] text-center uppercase">
+                            <span>Enlever le chevalet avant de déclarer</span>{console.log(selectedActivity)}
+                        </p>
+                    )}
+
+                    {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+                </div>
+
+
+
+                {/* <div className="flex justify-end">
                     <button
                         className="bg-blue-500 hover:bg-blue-700 text-white text-xl font-bold mt-4 py-4 px-4 rounded"
                         onClick={handleTakeCharge}
                     >
                         Prendre en charge
                     </button>
+                </div> */}
+
+                <div className="flex flex-row gap-4 justify-between mt-4">
+                    <button
+                        className="bg-gray-200 font-bold py-2 text-2xl px-4 rounded-lg h-18 w-1/2 uppercase"
+                        onClick={onClose}
+                    >
+                        Annuler
+                    </button>
+
+                    <button
+                        className="bg-black  text-white text-2xl font-bold py-2 px-4 rounded-lg h-18 w-1/2 uppercase"
+                        onClick={handleTakeCharge}
+                    >
+                        Déclarer
+                    </button>
                 </div>
+
             </div>
         </div>
     );

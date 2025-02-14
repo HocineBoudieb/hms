@@ -10,6 +10,7 @@
     "@mui/x-data-grid": "^7.23.5",
     "axios": "^1.7.9",
     "chart.js": "^4.4.7",
+    "classnames": "^2.5.1",
     "cra-template": "1.2.0",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.469.0",

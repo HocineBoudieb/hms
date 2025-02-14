@@ -17,8 +17,8 @@ export const getAntennas = (prisma) => async (req, res) => {
 
 export const antennasMac = {
   0: "2ccf67c45dcd",
-  1: "2ccf67ae1241",
-  2: "2ccf67ae1041",
-  3: "2ccf67c3ea11",
-  4: "2ccf67c3e980",
+  2: "2ccf67ae1241",
+  4: "2ccf67ae1041",
+  6: "2ccf67c3ea11",
+  8: "2ccf67c3e980",
 }

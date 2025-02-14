@@ -75,6 +75,7 @@ export const createOrder = (prisma) => async (req, res) => {
       data: {
         startDate: new Date(),
         productId: productId,
+        priority: 'normal',
         status: 0,
       },
     });

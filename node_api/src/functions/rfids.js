@@ -27,7 +27,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
     id = Object.keys(antennasMac).find(key => antennasMac[key] === id);
     //console.log("id", id);
     const { rfids, timestamp } = req.body; // Array of RFID IDs & Timestamp
-    console.log("received from antenna", id,"rfids:", rfids,"timestamp:", timestamp);
+    //console.log("received from antenna", id,"rfids:", rfids,"timestamp:", timestamp);
     if(id === '0'){
         //console.log("registering rfids");
         try {
@@ -195,7 +195,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
                     },
                     });
                     //if this is the last antenna, mark the order as done
-                    if(enCours.id == 24){
+                    if(enCours.id == 7){
                         await prisma.rfidOrder.update({
                         where: { id: rfidorderId },
                         data: {
@@ -234,7 +234,7 @@ export const processRfidDetection  = (prisma) => async (req, res) => {
             exitedRfids,
             });
         } catch (error) {
-            console.error("Error processing RFID detection:", error);
+            //console.error("Error processing RFID detection:", error);
             res.status(500).json({ error: "Failed to process RFID detection." });
         }
     }

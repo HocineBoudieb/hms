@@ -11,9 +11,9 @@ const GanttChartByProduct = ({ orders }) => {
    */
 
   const workshopColors = {
-    1: 'orange-300',
-    2: 'green-300',
-    3: 'blue-400',
+    2: 'orange-300',
+    4: 'green-300',
+    6: 'blue-400',
   }
 
   const [workshops, setWorkshops] = useState({});
@@ -95,6 +95,7 @@ const GanttChartByProduct = ({ orders }) => {
   // Calcul du maximum global de la somme des moyennes pour pouvoir scaler les segments
   const maxTotalAverage = useMemo(() => {
     let max = 0;
+
     Object.keys(productAverages).forEach((productId) => {
       const averages = productAverages[productId];
       const totalAverage =
@@ -105,7 +106,7 @@ const GanttChartByProduct = ({ orders }) => {
       }
     });
     return max;
-  }, [productAverages,showEnAttente]);
+  }, [productAverages,showEnAttente,std]);
 
   useEffect(() => {
     const fetchStd = async () => {
@@ -137,7 +138,7 @@ const GanttChartByProduct = ({ orders }) => {
                 key={id}
                 className={"w-64 h-full p-1 flex items-center justify-center bg-"+(color)}
               >
-                <span className="text-white font-bold">{`${workshops[id-1]?.name}`}</span>
+                <span className="text-white font-bold">{`${workshops[(id/2)-1]?.name}`}</span>
               </div>
           ))}
           </div>
@@ -168,10 +169,7 @@ const GanttChartByProduct = ({ orders }) => {
 
         // Tri des segments : on place d'abord les "En-Attente", puis les "Atelier", triés par identifiant
         segments.sort((a, b) => {
-          if (a.type === b.type) {
             return parseInt(a.id) - parseInt(b.id);
-          }
-          return a.type === 'En-Attente' ? -1 : 1;
         });
 
         // Calcul du temps total pour chaque type
@@ -189,7 +187,7 @@ const GanttChartByProduct = ({ orders }) => {
         const formattedEnAttente = Duration.fromMillis(12 * totalEnAttente)
           .shiftTo('days')
           .toFormat("d 'j'");
-        const formattedTotalTime = Duration.fromMillis(12 *totalAtelier + totalEnAttente)
+        const formattedTotalTime = Duration.fromMillis(12 *totalAtelier + 12*totalEnAttente)
           .shiftTo('days')
           .toFormat("d 'j'");
         const formattedTraversalTime = Duration.fromMillis(product.stdTraversalTime)
@@ -217,11 +215,11 @@ const GanttChartByProduct = ({ orders }) => {
               <p>
                 <strong>Temps d'attente :</strong> {formattedEnAttente}
               </p>
-              <p className={product.stdTraversalTime > (totalAtelier+totalEnAttente) ? 'text-green-500' : 'text-red-500'}>
+              <p className={(product.stdTraversalTime < (12*totalAtelier+12*totalEnAttente)*0.9) ? 'text-red-500' : ((product.stdTraversalTime < (12*totalAtelier+12*totalEnAttente)*1.1) ? 'text-orange-500' : 'text-green-500')}>
                 <strong>Temps de traversée :</strong> {formattedTotalTime}
               </p>
               <p>
-                <strong>Temps standard :</strong> {formattedTraversalTime}
+                <strong>Temps cible :</strong> {formattedTraversalTime}
               </p>
               </div>
               )}
@@ -232,7 +230,7 @@ const GanttChartByProduct = ({ orders }) => {
               <p>
                 <strong>Performance par atelier :</strong> {segments.map(segment => (
                   <span key={segment.id}>
-                     {workshops[segment.id-1]?.name} : {
+                     {workshops[(segment.id)/2-1]?.name} : {
                        stdProduct.map(stdtime => (
                          stdtime.workshopId === parseInt(segment.id) && (
                            Math.round((stdtime.value/segment.average)*100)
@@ -256,7 +254,7 @@ const GanttChartByProduct = ({ orders }) => {
               <div className="w-full border p-4 rounded-lg bg-white shadow-md">
                 <h3 className="text-xl font-bold mb-2">Temps Cible</h3>
                 <div className="flex items-center h-5 relative rounded-md overflow-hidden">
-                    <div className='h-full cursor-pointer border-r border-white bg-green-400' style={{ width: `${Math.max(2, (product.stdTraversalTime / maxTotalAverage) * 100)}%` }}></div>
+                    <div className='h-full cursor-pointer border-r border-white bg-green-400' style={{ width: `${Math.max(2, (product.stdTraversalTime / (maxTotalAverage*12)) * 100)}%` }}></div>
                 </div>
               </div>
             )}

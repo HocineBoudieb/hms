@@ -7,6 +7,8 @@ import Alerts from './pages/Alerts';
 import Settings from './pages/Settings';
 import Workshop from './pages/Workshop';
 import Metrics from 'pages/Metrics';
+import React from 'react';
+import Supervision from 'pages/Supervision';
 import PerformanceTracking from 'pages/Performance';
 
 import apiUrl from './api';
@@ -30,6 +32,7 @@ function App() {
                   <Route path="/settings" element={<Settings />} />
                   <Route path='/metrics' element={<Metrics />} />
                   <Route path='/performance' element={<PerformanceTracking />} />
+                  <Route path='/supervision' element={<Supervision />} />
                 </Routes>
               </div>
             </div>
